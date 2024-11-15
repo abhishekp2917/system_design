@@ -1,0 +1,293 @@
+*   What is Indexing in Database ?
+
+>>  Indexing in databases is a technique used to improve the speed of data retrieval operations on a table at the cost of 
+    additional storage space. 
+    
+    It works by creating a data structure (often a B-tree or hash index) that allows the database to quickly locate 
+    rows based on the values in indexed columns, without scanning the entire table.
+
+    Let for the given below table, index is applied in column 'last_name', then DB will create a B-tree of the data shown 
+    below. 
+            ________________________________
+            | id  | first_name | last_name |
+            |-----|------------|-----------|
+            | 1   | John       | Allen     |
+            | 2   | Jason      | Ford      |
+            | 3   | Johnathan  | Roberts   |
+            | 4   | Joseph     | Nelson    |
+            | 5   | Jamie      | Moore     |
+            | 6   | Jim        | Clark     |
+            | 7   | Jeremy     | Quinn     |
+            | 8   | Julie      | Green     |
+            | 9   | Joan       | Smith     |
+            | 10  | Jill       | Evans     |
+            | 11  | Jake       | Davis     |
+            | 12  | Jordan     | Taylor    |
+            | 13  | Jerome     | Lee       |
+            | 14  | Julia      | James     |
+            | 15  | Jasmine    | Irwin     |
+            | 16  | Jack       | Hill      |
+            | 17  | Jane       | Brown     |
+            | 18  | Janelle    | Olsen     |
+            | 19  | Jacek      | King      |
+            | 20  | Justin     | Park      |
+            |_____|____________|___________|
+    
+    
+                    _______________ [Evans, Lee] _________________________________________________________
+                    |                      |                                                             |           
+                    |                      |                                                             |          
+                    |                      |                                                             |              
+                    |                      |                                                             |  
+        _________ [Clark, Davis]       [Ford, Irwin] _______                                ______ [Quinn, Roberts] ___________
+        |                                  |               |                                |                                 |
+        |                                  |               |                                |                                 |
+        |                                  |               |                                |                                 |
+        |                                  |               |                                |                                 |      
+    [Allen, Brown]                    [Green, Hill]      [James, King]        _______ [Olsen, Park]                    [Smith, Taylor]
+                                                                              |                                       
+                                                                              |               
+                                                                              |               
+                                                                              |               
+                                                                      [Moore, Nelson]
+
+________________________________________________________________________________________________________________________
+
+*   Difference between SQL and NoSQL.
+
+>> 
+
+________________________________________________________________________________________________________________________
+
+*   What are the properties of SQL DBMS ?
+
+>>  (1) Fixed Schema:
+
+        SQL databases require a predefined schema, meaning that the structure of the data (tables, columns, data types, 
+        and constraints) must be defined before data is inserted. This enforces data consistency and helps manage 
+        complex data relationships.
+
+    (2) ACID Compliance:
+
+        (a) Atomicity: 
+        
+            Ensures that each transaction is all-or-nothing, so if one part of the transaction fails, the entire 
+            transaction fails and the database remains unchanged.
+
+        (b) Consistency: 
+        
+            SQL databases generally ensure strong consistency by committing transactions in a synchronous manner, 
+            making sure that all reads reflect the most recent write operations.
+
+        (c) Isolation: 
+        
+            Ensures that concurrent transactions do not interfere with each other and that the outcome is as if the 
+            transactions were executed sequentially.
+
+        (d) Durability: 
+            
+            Ensures that once a transaction is committed, it remains so, even in the case of a system failure.
+
+    (3) Relational Structure:
+
+        SQL databases store data in tables, with rows representing individual records and columns representing attributes. 
+        
+        Tables can have relationships with one another using foreign keys, enabling structured and normalized data storage.
+
+    (4) Normalization:
+
+        SQL DBMSs often use normalization techniques to minimize data redundancy and maintain data integrity.
+
+    (5) Structured Query Language (SQL):
+
+        SQL supports complex queries, joins, aggregations, subqueries, and analytical operations, making it versatile 
+        for data retrieval and manipulation.
+
+________________________________________________________________________________________________________________________
+
+*   What are the properties of NoSQL DBMS ?
+
+>>  (1) Schema Flexibility:
+
+        Unlike SQL databases, NoSQL databases do not require a fixed schema, allowing data structures to be more flexible 
+        and different records in the same collection/table can have different fields.
+
+    (2) Performance:
+
+        NoSQL databases are designed for high read/write throughput, making them ideal for applications that need to 
+        handle large volumes of data and high traffic.
+
+    (3) ACID vs BASE Properties:
+
+        While most NoSQL databases do not fully adhere to ACID properties, they often follow BASE principles, focusing 
+        on availability and eventual consistency to achieve high performance and scalability.
+
+    (4) Support for Big Data:
+
+        NoSQL databases are suited for applications that need to process and store vast amounts of unstructured or 
+        semi-structured data and can handle real time data processing needs.
+
+    (5) Scalability:
+
+        NoSQL databases are typically designed to scale out by adding more servers to handle increased loads, rather than 
+        scaling up with more powerful hardware.
+
+    (5) High Availability and Fault Tolerance:
+
+        Data is often replicated across multiple nodes to ensure availability in case of failures.
+
+________________________________________________________________________________________________________________________
+
+*   What are the disadvantages of NoSQL ?
+
+>>  (1) Limited ACID Compliance:
+
+        Although some NoSQL databases like MongoDB and Couchbase offer ACID-compliant transactions, full multi-document 
+        or multi-node transaction support is less common and may come with trade-offs in performance and complexity.
+
+    (2) Limited Query Capabilities:
+
+        Some NoSQL databases may not support complex querying or joins as efficiently as SQL databases, requiring more 
+        complicated application logic or multiple queries to achieve the same result.
+
+    (3) Lack of Relationship Management:
+
+        For applications that require strict enforcement of relationships between different entities 
+        (e.g., maintaining referential integrity), NoSQL databases aren't suited.
+        
+________________________________________________________________________________________________________________________
+
+*   How NoSQL DBMS are faster than SQL DBMS in read/write operation ?
+
+>>  (1) Read operation in NoSQL is faster because:  
+
+        (a) Simplified Data Model:
+
+            NoSQL databases often use simpler data models (e.g., key-value pairs, documents, or graphs).
+
+            In key-value stores (e.g., Redis, DynamoDB), data can be read/write in O(1) as each record has a unique 
+            key to identify.
+
+            Similarly, in document stores (e.g., MongoDB), each document in a collection has a unique id which makes 
+            read/write operation in O(1) and doesn't require full scan of the colection.
+
+            ------------------------------------------------------------------------------------------------------------
+            Important! :
+            
+            If read query is based on field and not the id or the key, then even NoSQL DBMS will perform full scan 
+            just like SQL.
+            
+            But still NoSQL will be faster compare to SQL because of some other factors mentioned below. 
+            ------------------------------------------------------------------------------------------------------------
+
+        (b) Schema Flexibility:
+
+            NoSQL databases like MongoDB often store data in a denormalized format, where related data is embedded 
+            within a single document. 
+            
+            This means that when reading data, the database can fetch all relevant information with a single read 
+            operation, avoiding the need for complex joins that are typical in relational SQL databases.
+
+        (c) Horizontal Scalability:
+
+            Many NoSQL databases are designed with built-in horizontal scaling in mind, meaning they can distribute 
+            data across multiple servers or nodes. 
+            
+            This allows for parallel reads from different nodes, which can lead to faster read performance when 
+            querying large datasets.
+
+    (2) Write operation in NoSQL is faster because: 
+
+        (a) Schema Flexibility:
+
+            NoSQL databases, such as MongoDB, do not enforce a strict schema. 
+            
+            This flexibility means that write operations don’t need to check against a pre-defined table schema, 
+            allowing for faster insertions or updates without additional overhead.
+
+        (b) Denormalized Data Model:
+
+            In NoSQL, data is often stored in a denormalized format, which means that related information is embedded 
+            in a single document. 
+            
+            This reduces the need for multiple write operations across different tables or collections
+
+        (c) Eventual Consistency:
+
+            Many NoSQL databases, such as Cassandra, offer eventual consistency as opposed to the strict ACID 
+            (Atomicity, Consistency, Isolation, Durability) properties enforced by SQL databases. 
+            
+            This relaxed consistency model allows write operations to be distributed quickly across nodes without 
+            waiting for synchronous replication, leading to faster writes.
+
+        (d) Horizontal Scalability:
+
+            NoSQL databases are designed for horizontal scaling, meaning data can be written across multiple nodes or 
+            servers. 
+            
+            This allows for high-throughput write operations as the load is distributed.
+
+________________________________________________________________________________________________________________________
+
+*   How NoSQL can be scaled horizontally more easily compare to SQL ?
+
+>>  (1) Data Model Flexibility:
+
+        NoSQL has flexible, schema-less data models, which allow data to be partitioned and stored across different 
+        nodes without complex relationships between tables.
+
+        In document-based NoSQL databases like MongoDB, each document is often independent and self-contained, meaning 
+        it does not rely on other documents for its integrity. This makes it simpler to distribute data across nodes 
+        compared to the relational data model, where relationships between tables need to be maintained during scaling.
+
+    (2) Eventual Consistency:
+
+        Many NoSQL databases prioritize Availability and Partition Tolerance over strict consistency, which simplifies 
+        scaling across nodes.
+
+        Databases like Cassandra operate on an eventual consistency model, where data is replicated asynchronously 
+        across nodes.
+
+________________________________________________________________________________________________________________________
+
+*   When to select SQL over NoSQL and viceversa ?
+
+>>  When to Choose SQL:
+
+        (1) Well-Defined Schema: 
+        
+            If your data has a well-defined schema and relationships that are unlikely to change frequently, SQL is ideal.
+
+        (2) Complex Queries: 
+            
+            SQL excels at complex querying and supports joins, subqueries, and aggregations, making it suitable for 
+            applications needing advanced analytics.
+
+        (3) Strong Consistency:
+
+            If your application requires strong consistency, where transactions must be fully ACID-compliant 
+            (e.g., financial systems, banking applications, order management), SQL databases are designed to ensure this.
+
+    When to Choose NoSQL:
+
+        (1) Flexible Schema:
+
+            If your application needs to handle semi-structured or unstructured data (e.g., JSON, XML) that might evolve 
+            over time without significant schema changes, NoSQL is more suitable.
+
+        (2) Scalability and High Availability:
+
+            NoSQL databases are designed for horizontal scaling (distributing data across multiple nodes), making them 
+            ideal for applications that need to scale out rather than up, such as social media platforms.
+
+        (3) Eventual Consistency:
+
+            If your application can handle eventual consistency in favor of improved availability and partition 
+            tolerance, NoSQL databases provide that flexibility.
+
+        (4) High Read/Write Throughput:
+
+            NoSQL is optimized for high read/write throughput making it ideal for scenario where large number of 
+            read/writes is required. 
+
+________________________________________________________________________________________________________________________
