@@ -154,7 +154,7 @@ ________________________________________________________________________________
 
         For applications that require strict enforcement of relationships between different entities 
         (e.g., maintaining referential integrity), NoSQL databases aren't suited.
-        
+
 ________________________________________________________________________________________________________________________
 
 *   How NoSQL DBMS are faster than SQL DBMS in read/write operation ?
@@ -290,4 +290,245 @@ ________________________________________________________________________________
             NoSQL is optimized for high read/write throughput making it ideal for scenario where large number of 
             read/writes is required. 
 
+________________________________________________________________________________________________________________________
+
+*   What is Sharding (Horizontal Partitioning) ?
+
+>>  Sharding is a database architecture pattern where data is horizontally partitioned across multiple databases, servers, 
+    or nodes, referred to as shards. Each shard holds a subset of the data, and together all the shards form the complete 
+    dataset. 
+    
+    Sharding is primarily used to handle large-scale applications where the dataset exceeds the capacity of a single 
+    server, ensuring the system can scale horizontally to distribute the load. 
+
+    It can also improve the read operation but not significantly. 
+
+    Here’s how sharding typically works:
+
+    (1) Sharding Key (Partition Key):
+
+        A sharding key is used to determine how data will be distributed across the shards.
+        
+        The sharding key can be any attribute of the data, like user ID, geographic location, or product category. 
+
+        The choice of a good sharding key is crucial for achieving even distribution and avoiding hotspots (where a 
+        single shard gets too much traffic or data).
+
+    (2) Data Distribution:
+
+        Data is divided based on the sharding key, and each shard holds records corresponding to a specific subset of 
+        key values.
+
+        For example, if a system uses 'user_id' as the sharding key, user records with IDs from 1 to 1,000,000 could 
+        be stored in Shard-1, from 1,000,001 to 2,000,000 in Shard-2, and so on.
+
+    (3) Shard Mapping and Query Routing:
+
+        A shard map or routing table is maintained, which helps the system determine which shard holds the required data.
+
+        When a query is made, the application or middleware checks the shard map to determine which shard(s) contain 
+        the required data.
+
+        Platform like 'Vitess' for 'MySQL' and 'Mongos' for 'MongoDB' can be used for routing the request to right shard.
+        These platform forms a layer of abstraction between application and database making it as if there is only one
+        database which application is interacting with. 
+
+________________________________________________________________________________________________________________________
+
+*   What are the benefits and challenges of Sharding (Horizontal Partitioning) ?
+
+>>  Benefits of Sharding:
+        
+        (1) Scalability: 
+        
+            As data grows, new shards can be added to distribute the load. This allows the system to scale horizontally, 
+            which is particularly important for large, distributed applications.
+
+        (2) Performance: 
+        
+            With sharding, data is distributed across multiple servers, so queries are processed in parallel, improving 
+            performance, especially for read-heavy workloads.
+
+    Challenges with Sharding:
+
+        (1) Complexity: 
+        
+            Sharding introduces complexities in database management, such as the need for a shard map, data migration 
+            when adding new shards, and managing cross-shard queries.
+
+        (2) Data Distribution: 
+        
+            If the sharding key is not chosen wisely, it can lead to uneven data distribution, causing some shards to 
+            become overloaded (also known as "hotspots").
+
+        (3) Cross-Shard Queries: 
+        
+            Queries that need to access data across multiple shards (e.g., aggregations, joins) can be more complex and 
+            slower than in non-sharded databases, as they may require querying multiple shards simultaneously and then 
+            combining the results.
+
+________________________________________________________________________________________________________________________
+
+*   What is Vertical Partitioning ?
+
+>>  Vertical partitioning is a database optimization technique in which the columns of a table are divided into separate, 
+    smaller tables. Each smaller table includes a subset of columns from the original table, and they are typically 
+    joined together by a common primary key or unique identifier.
+
+    How Vertical Partitioning Works:
+
+        Imagine an e-commerce database with a products table that contains the following columns:
+            _________________________________________________________________________________________________
+            |   ProductID	|   Name    |   Description |   Price   |   StockQuantity   |   SupplierDetails |
+            _________________________________________________________________________________________________
+        
+        This table can be vertically partitioned into two separate tables:
+
+            (1) Products_Info:
+                
+                Contains columns frequently accessed together, such as ProductID, Name, Description, and Price.
+                _________________________________________________________
+                |   ProductID   |   Name    |   Description |   Price   |
+                _________________________________________________________
+                
+            (2) Products_Stock:
+                
+                Contains columns related to inventory or less frequently accessed data, such as ProductID, StockQuantity, 
+                and SupplierDetails.
+                _________________________________________________________
+                |   ProductID   |   StockQuantity   |   SupplierDetails |
+                _________________________________________________________
+
+    Benefits of Vertical Partitioning:
+
+        (1) Performance Improvement: 
+        
+            By separating frequently accessed columns from infrequently accessed ones, vertical partitioning can reduce 
+            the amount of data read during queries, improving read performance.
+
+        (2) Better Cache Utilization: 
+        
+            Smaller, more focused tables can fit more effectively into memory and caches, leading to faster data retrieval.
+
+    Challenges of Vertical Partitioning:
+
+        (1) Complexity of Joins: 
+        
+            Queries that need data from multiple partitions will require joins, potentially impacting performance.
+
+        (2) Increased Complexity: 
+        
+            Database schema and application logic become more complex, as the system must handle multiple tables instead 
+            of one.
+
+        (3) Consistency Maintenance: 
+        
+            Ensuring data consistency across partitions can be more challenging, especially when updates involve columns 
+            from different partitions.
+
+________________________________________________________________________________________________________________________
+
+*   What are various technologies for Shard management ? 
+
+>>  Below are various technologies and tools used for query routing and shard management:
+
+    (1) Vitess:
+        
+        - Open-source sharding middleware for MySQL.
+        
+        - Vitess abstracts the sharding logic, automatically routing queries to the appropriate shard based on the 
+          shard key.
+        
+        - Supports horizontal scaling with sharding and can manage a large number of database instances.
+                    
+
+    (2) ProxySQL:
+
+        - High-performance MySQL proxy.
+        
+        - Can route SQL queries to different MySQL servers based on rules.
+
+        - Ideal for MySQL and MariaDB environments requiring load balancing and query routing.
+        
+        - Distributes read and write queries to separate database instances to optimize performance.
+
+        - Reduces latency by caching results.
+
+    (3) Citus:
+
+        - Open-source extension to PostgreSQL for distributed SQL.
+        
+        - Routes and distributes queries across multiple PostgreSQL nodes.
+
+        - Automatically shards tables and rebalances data as nodes are added or removed.
+        
+        - Improves performance by running parts of a query on different nodes concurrently.
+
+    (4) MongoDB Sharding:
+
+        - NoSQL database with built-in sharding support.
+        
+        - MongoDB uses a component called mongos to route queries to the appropriate shard based on 
+          the shard key.
+
+        - Handles data distribution, balancing, and replica management.
+
+________________________________________________________________________________________________________________________
+
+*   What are various technologies that provide support for load balancing database replicas ?
+
+>>  Here is a list of technologies that provide support for load balancing database replicas:
+
+    (1) Database Proxy Solutions
+    
+        (a) ProxySQL:
+
+            Description: A high-performance, open-source proxy for MySQL and MariaDB.
+            
+            Features: Read/write splitting, query routing, load balancing across replicas, failover support, and query caching.
+            
+            Use Case: Ideal for MySQL and MariaDB users needing dynamic query routing and high availability.
+        
+        (b) HAProxy:
+
+            Description: A reliable, open-source load balancer that supports HTTP, TCP, and database traffic.
+            
+            Features: Configurable for load balancing read and write operations, health checks, and failover.
+            
+            Use Case: Can be used for balancing traffic across multiple database replicas and nodes.
+
+        (c) Nginx:
+
+            Description: A web server that also acts as a reverse proxy and load balancer.
+            
+            Features: Can be configured for database load balancing and distributing connections across replicas.
+            
+            Use Case: Suitable for applications that need load balancing for lightweight database requests.
+
+    (2) Database-Specific Load Balancing Solutions
+
+        (a) Vitess:
+
+            Description: An open-source sharding middleware for scaling MySQL.
+            
+            Features: Transparent sharding, read/write splitting, load balancing across replicas, and query aggregation.
+            
+            Use Case: Used in large-scale MySQL deployments for horizontal scalability and load management.
+
+        (b) MongoDB (mongos):
+
+            Description: A query router component used in MongoDB sharded clusters.
+            
+            Features: Routes read and write queries to appropriate shards and supports load distribution among replicas.
+            
+            Use Case: Best for MongoDB clusters that need to balance read queries across secondary nodes.
+        
+        (c) Citus:
+
+            Description: An extension for PostgreSQL that enables distributed database capabilities.
+            
+            Features: Load balancing across worker nodes, parallel query execution, and data redistribution.
+            
+            Use Case: For PostgreSQL users looking for distributed and horizontally scalable database solutions.
+            
 ________________________________________________________________________________________________________________________
