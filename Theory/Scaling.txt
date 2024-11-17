@@ -1,0 +1,319 @@
+*   What is Vertical Scaling ?
+
+>>  Vertical scaling involves increasing the capacity of a single machine by adding more resources such as CPU, RAM, or 
+    storage. 
+    
+    Instead of spreading out the workload across multiple machines, the existing machine is upgraded to handle larger or 
+    more demanding tasks.
+
+    Example: Upgrading a server from 16 GB of RAM to 64 GB of RAM or from a 4-core CPU to a 16-core CPU.
+
+    Benefits:
+
+        (1) Simplicity: 
+        
+            Easier to implement since you’re upgrading an existing system without modifying software to support 
+            distributed computing.
+
+        (2) No Additional Software Changes: 
+        
+            Applications usually don’t need to be modified to take advantage of increased resources.
+
+        (3) Consistency: 
+        
+            Data is managed on a single server, reducing issues related to data consistency and synchronization.
+
+    Drawbacks:
+
+        (1) Limitations on Capacity: 
+        
+            Physical hardware has a limit; there’s only so much you can scale a single machine. Eventually, you will 
+            reach the maximum capacity of resources that a machine can handle.
+
+        (2) Single Point of Failure: 
+        
+            If the machine fails, the entire service goes down, making it less fault-tolerant.
+
+        (3) Higher Costs: 
+        
+            Upgrading to high-end hardware can be expensive and may involve diminishing returns on investment as 
+            hardware becomes more advanced.
+
+________________________________________________________________________________________________________________________
+
+*   What is Horizontal Scaling ?
+
+>>  Adding more servers to a cluster that runs a distributed database like Apache Cassandra or a web application served 
+    by load-balanced web servers.
+
+    Benefits:
+
+        (1) Virtually Unlimited Scaling: 
+        
+            You can keep adding machines to scale out and handle more load, making it more flexible for large-scale 
+            systems.
+
+        (2) Fault Tolerance and Redundancy: 
+        
+            The failure of a single node doesn’t impact the whole system as the workload is shared among other nodes.
+
+    Drawbacks:
+
+        (1) Complexity: 
+        
+            Implementing horizontal scaling requires significant changes to the architecture of the application to 
+            ensure it can operate as a distributed system.
+
+            More machines mean more infrastructure to manage, requiring robust orchestration tools and skills 
+            for administration.
+
+        (2) Data Consistency Challenges: 
+        
+            Keeping data consistent across multiple nodes can be challenging, especially for systems that require 
+            real-time synchronization.
+
+        (3) Network Latency and Overhead: 
+        
+            Communication between nodes introduces network overhead, which can affect performance.
+
+________________________________________________________________________________________________________________________
+
+*   What is Load Balancing ?
+
+>>  
+
+________________________________________________________________________________________________________________________
+
+*   Why there is a need of Consistent Hashing ?
+
+>>  In distributed systems, the set of available nodes (servers, caches, etc.) can change due to scaling 
+    (adding/removing nodes) or node failures. 
+    
+    Traditional hashing algorithms can lead to a complete redistribution of keys across nodes when these changes occur, 
+    causing cache invalidation, increased data transfer, and latency spikes. 
+    
+    Consistent hashing, on the other hand, ensures that only a subset of keys is remapped when nodes are added or removed, 
+    minimizing the redistribution of data.
+
+    To understand how traditional load balancing strategies can lead to inefficient cache invalidation, consider a 
+    simple example involving a system with three servers (A, B, C and D).
+
+    Suppose we use a traditional hashing strategy, such as modular hashing, where the server for a given key is chosen 
+    based on:
+
+        ```
+            server# = hash(key) % number_of_servers
+        ```
+
+    Initial Distribution:
+
+        We start with four servers (A, B, C, D), so:
+
+            ```
+                server = hash(key) % 4
+            ```
+        
+        The keys are distributed as follows:
+
+            - K1, K5, K9, K13, K17 are on server A.
+            - K2, K6, K10, K14, K18 are on server B.
+            - K3, K7, K11, K15, K19 are on server C.
+            - K4, K8, K12, K16, K20 are on server D.
+
+    Problem with adding a New Server(E):
+
+        The number of servers changes from 4 to 5. This change affects the modulo operation, which now uses 5 as the 
+        divisor instead of 4.
+
+            ```
+                server = hash(key) % 5
+            ```
+
+        The redistribution of keys based on the new calculation could look like this:
+
+            - K1, previously on A, might now map to C.
+            - K2, previously on B, might now map to D.
+            - K3, previously on C, might now map to E.
+            - K4, previously on D, might now map to A.
+
+            And so forth for all keys.
+
+    Extent of Cache Invalidation:
+        
+        - In this example, most keys will be remapped to different servers and majority of the data stored in A, B, C, 
+          and D must be transferred to their new designated servers.
+            
+        - Cache invalidation occurs because the original cache locations no longer hold valid data for many keys. This 
+          means that servers need to refill their caches by retrieving data from the backend (e.g., database or storage).
+
+        - Cache hit rates plummet temporarily, leading to increased backend load and potential performance degradation.
+
+    Data Transfer Overhead:
+        
+        - Moving keys across servers generates substantial network traffic as data is shuffled to new locations.
+        
+        - This can lead to increased latency and processing overhead, disrupting system performance during the 
+          redistribution phase.
+
+________________________________________________________________________________________________________________________
+
+*   How Consistent Hashing works ?
+
+>>  Consistent hashing is a strategy used in distributed systems to distribute client request across nodes (servers) in 
+    a way that minimizes data movement when nodes are added or removed.
+
+    Here’s an in-depth explanation of how consistent hashing works:
+
+    (1) Hash Ring Concept:
+
+        Consistent hashing maps both client requests and nodes (servers) onto the same circular hash space, known 
+        as the hash ring.
+
+        The hash ring is a continuum that wraps around to form a circle, representing a finite range of hash values 
+        (e.g., 0 to 2^32-1).
+
+        Both the servers and the client requests are assigned positions on this hash ring using a hash function 
+        (e.g., MD5, SHA-1).
+
+    (2) Assigning Nodes to the Hash Ring:
+
+        Each node (server) is hashed to a point on the ring. For example, hashing server-A might result in a hash value 
+        that places A at position 5 on the ring, Server-B at position 6000 on the ring etc. 
+        
+        All nodes (A, B, C, etc.) are distributed across the ring at different points based on their hash values.
+
+    
+    (3) Assigning Request to Nodes:
+        
+        Each request is also hashed and placed on the ring. The node responsible for serving a given request is the 
+        first node found clockwise from the request position.
+
+        For instance, if client request R1 hashes to position 457 and the nodes on the ring are at positions 5 (Server-A), 
+        6000 (Server-B), 56700 (Server-C) and 1299870 (Server-D), then R1 will be served by node Server-B because 
+        Server-B at 6000 is the first node clockwise from 457.
+
+                                                    Hash:5            Hash:457
+                            _____________________________________________________________
+                            |                    ||            ||     |     |           |                                                       
+                            |                    ||  Server-A  ||     |  R1 |______     |                                                       
+                            |                    ||            ||     |     |      |    |
+                            |          _______________________________________     |    |  
+                            |          |                                     |    \|/   |
+                            |          |                                     |          |
+                            |==========|                                     |==========|
+                            |          |                                     |          |
+            Hash:120000     |          |                                     |          |
+                            | Server-D |                                     | Server-B | Hash:6000
+                            |          |                                     |          |
+                            |          |                                     |          |
+                            |==========|                                     |==========|
+                            |          |                                     |          |
+                            |          |                                     |__________|
+                            |          |                                     |    R2    | Hash: 10077
+                            |          |_____________________________________|__________|
+                            |                    ||            ||                 |     | 
+                            |                    ||  Server-C  ||   /_____________|     |
+                            |                    ||            ||   \                   |
+                            |___________________________________________________________|
+                                                    hash:56700
+
+
+    (4) Adding a New Node:
+
+        When a new node Server-E is added, it is hashed and placed on the ring.
+        
+        Only the requests that lie between Server-E and its predecessor on the ring are affected; they are reassigned 
+        to Server-E.
+
+        For example, if Server-E is hashed to position 500000, only the requests between 120000 (position of Server-D) 
+        and 500000 are moved to Server-E. The rest of the requests on the ring remain assigned to their original nodes.
+
+    (5) Removing a Node:
+
+        When a node is removed (e.g., due to failure or scaling down), only the request that were managed by the removed 
+        node need to be redistributed.
+        
+        The requests are reassigned to the next node clockwise on the ring.
+
+________________________________________________________________________________________________________________________
+
+*   What are Virtual Nodes in Consistent Hashing ?
+
+>>  Problem with Basic Consistent Hashing:
+
+        In basic consistent hashing, each physical node (server) is assigned a single point on the hash ring. This can 
+        lead to uneven distribution of data if the hash function isn't uniformly distributing nodes or if one node goes
+        down which would map all the request of that node to the next node in the Hash ring. 
+        
+        The result is some nodes might be overloaded, while others might be underutilized.
+
+        To solve this issue, virtual nodes are introduced.
+ 
+                                           Hash:5      hash:5000           Hash:10000
+                            ____________________________________________________________________
+                            |           #          #     |    |           #          #          |                                   
+                            |           # Server-A #     | R1 |------->   # Server-C #          |                                    
+                            |           #          #     |    |           #          #          |
+                            |          _______________________________________________          |
+                            |##########|                                             |##########|
+                            |          |                                             |          |
+                Hash:70000  | Server-B |                                             | Server-B | Hash:20000
+                            |          |                                             |          | 
+                            |##########|                                             |##########|
+                            |          |                                             |          |
+                            |          |                                             |          |
+                            |          |                                             |          |
+                            |          |                                             |          |
+                            |          |                                             |          |
+                            |          |                                             |          |
+                            |##########|                                             |##########|
+                            |          |                                             |          |
+                            | Server-D |                                             | Server-D | Hash:30000
+                Hash:60000  |          |                                             |          |
+                            |##########|                                             |##########| 
+                            |          |                                             |          |
+                            |          |                                             |__________|
+                            |          |                                             |    R2    | Hash:35000
+                            |          |                                             |__________|
+                            |          |_____________________________________________|    |     |
+                            |           #          #           |    |     #          #    |     |
+                            |           # Server-A #   <-------| R3 |     # Server-C # <--|     |
+                            |           #          #           |    |     #          #          |
+                            |___________________________________________________________________|
+                                         hash:50000         Hash:45000     hash:40000
+
+    How Virtual Nodes Work:
+
+        (1) Multiple Virtual Nodes per Physical Node:
+
+            Instead of placing a physical node (e.g., Server-A, Server-B, Server-C) at one point on the hash ring, 
+            multiple virtual nodes (vNodes) are placed around the ring, each representing a fraction of the physical 
+            node’s responsibility.
+
+            For example, if we have node Server-A, it might be assigned to multiple positions like 5, 50000 etc, 
+            scattered around the ring.
+
+
+        (2) Increased Distribution:
+
+            By having multiple virtual nodes per physical node, the load of requests is more evenly distributed across 
+            all the physical nodes.
+
+            For instance, instead of having one node A at position 5, you may have at different places 
+            (e.g., at positions 5, 50000).
+        
+        (3) Removing a Node:
+
+            If a physical node fails or is removed, only the virtual nodes assigned to that node are removed from the 
+            ring, and their requests are evenly redistributed to the available virtual nodes.
+
+            For instance, requests R1 (at 5000) and R2 (35000) are served by node Server-C positioned at 10000 and 40000
+            respectively.
+
+            If Server-C goes down, request R1 will be routed to Server-B (at 20000) and R2 will be routed to Server-A 
+            (at 50000). That means, load will be evenly distributed to the available nodes in the cluster.
+
+            If there wouldn't have been virtual nodes then, all the request received by Server-C would have been directed 
+            towards one singel server positioned next to Sever-C on the Hash ring leading to uneven load distribution.
+
+________________________________________________________________________________________________________________________
