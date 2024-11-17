@@ -1,7 +1,7 @@
 *   What is Indexing in Database ?
 
->>  Indexing in databases is a technique used to improve the speed of data retrieval operations on a table at the cost of 
-    additional storage space. 
+>>  Indexing in databases is a technique used to improve the speed of data retrieval operations (time complexity: log(n)) 
+    on a table at the cost of additional storage space. 
     
     It works by creating a data structure (often a B-tree or hash index) that allows the database to quickly locate 
     rows based on the values in indexed columns, without scanning the entire table.
@@ -39,23 +39,42 @@
                     |                      |                                                             |          
                     |                      |                                                             |              
                     |                      |                                                             |  
-        _________ [Clark, Davis]       [Ford, Irwin] _______                                ______ [Quinn, Roberts] ___________
-        |                                  |               |                                |                                 |
-        |                                  |               |                                |                                 |
-        |                                  |               |                                |                                 |
-        |                                  |               |                                |                                 |      
-    [Allen, Brown]                    [Green, Hill]      [James, King]        _______ [Olsen, Park]                    [Smith, Taylor]
+        _________ [Clark]________       [Ford, Irwin] _______                                ______ [Quinn, Roberts] ___________
+        |                       |           |               |                                |                                 |
+        |                       |           |               |                                |                                 |
+        |                       |           |               |                                |                                 |
+        |                       |           |               |                                |                                 |      
+    [Allen, Brown]           [Davis]  [Green, Hill]      [James, King]        _______ [Olsen, Park]                    [Smith, Taylor]
                                                                               |                                       
                                                                               |               
                                                                               |               
                                                                               |               
                                                                       [Moore, Nelson]
 
-________________________________________________________________________________________________________________________
+    Drawbacks of Indexing:
+        
+        (1) Increased Storage Requirements:
 
-*   Difference between SQL and NoSQL.
+            Each index consumes additional disk space. In cases where there are many indexes, the storage cost can be 
+            substantial.
+            
+            For very large databases, this can lead to significant space management concerns and increased storage 
+            expenses.
 
->> 
+        (2) Slower Write Operations:
+
+            Insert, update, and delete operations become slower because the indexes need to be maintained and updated 
+            whenever the data changes.
+
+            Each write operation may involve updating not just the data but also the relevant index structures, which 
+            can add overhead.
+        
+        (3) Complexity in Index Management:
+
+            Maintaining a large number of indexes can make database management more complex. Determining which columns 
+            to index and balancing performance can be challenging.
+
+            Improper index design can lead to inefficient queries and increased maintenance tasks.
 
 ________________________________________________________________________________________________________________________
 
@@ -530,5 +549,5 @@ ________________________________________________________________________________
             Features: Load balancing across worker nodes, parallel query execution, and data redistribution.
             
             Use Case: For PostgreSQL users looking for distributed and horizontally scalable database solutions.
-            
+
 ________________________________________________________________________________________________________________________
