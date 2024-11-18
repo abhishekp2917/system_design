@@ -78,6 +78,127 @@
 
 ________________________________________________________________________________________________________________________
 
+*   What are SSTables (Sorted String Tables) ?
+
+>>  SSTables are immutable data files used in storage systems to store key-value pairs. The data in SSTables is sorted 
+    by keys, which makes them efficient for lookups, range queries, and merging operations.
+
+    When multiple SSTables are present, they may be merged or compacted periodically to maintain efficient read 
+    performance and reduce the number of SSTables that need to be checked during a query.
+
+    Assume a database is storing user information (e.g., user ID as the key and user details as the value). The data 
+    in SSTables might look like this:
+
+        Key	                Value
+    _________________________________________
+    |   1001    |	Alice, 25, New York     |
+    |   1002	|    Bob, 30, Los Angeles   |
+    |   1003	|    Charlie, 22, Miami     |
+    _________________________________________
+
+    In the SSTable, the index will map keys (1001, 1002, 1003) to their respective positions in the data block, 
+    allowing for quick lookup.
+        
+________________________________________________________________________________________________________________________
+
+*   What are LSM Trees (Log-Structured Merge Trees) ?
+
+>>  An LSM tree is a data structure designed to handle a high volume of write operations efficiently. It organizes data 
+    in a way that optimizes write throughput by writing new data sequentially to disk and deferring merges until later.
+
+    How It Works:
+
+    Let's take below data entries to understand it better:
+
+        Key	                Value
+    _________________________________________
+    |   1001    |	 Alice, 25, New York    |
+    |   1004	|    Bob, 30, Los Angeles   |
+    |   1003	|    Charlie, 22, Miami     |
+    |   1002	|    Kat, 35, Los Angeles   |
+    _________________________________________
+
+        (1) In-memory Component (Memtable):
+            
+            New data is first written to an in-memory table (memtable), which supports fast inserts and updates. 
+            
+            The data in the memtable is kept in a sorted order, typically implemented as a balanced tree 
+            (often a Red-Black Tree), providing O(log N) time complexity for read/write.
+
+                                1002 [Black]
+                                /          \
+                               /            \
+                          1001 [Red]     1003 [Black]
+                                               \
+                                                \
+                                            1004 [Red]
+
+
+        (2) Flushing to Disk: 
+
+            When the in-memory component reaches a certain size, it is flushed to disk as an immutable SSTable.
+
+            SSTable1:
+            _________________________________________
+            |   1001    |	 Alice, 25, New York    |
+            |   1004	|    Bob, 30, Los Angeles   |
+            _________________________________________
+
+            SSTable2:
+            _________________________________________
+            |   1002	|    Kat, 35, Los Angeles   |
+            |   1003	|    Charlie, 22, Miami     |
+            _________________________________________
+
+        (3) Compaction:
+
+            Over time, multiple SSTables (SSTable1, SSTable2, etc.) are created. A compaction process merges these 
+            SSTables, removing duplicate entries and ensuring data remains sorted and efficient to read.
+
+            Merged SSTable:
+            _________________________________________
+            |   1001    |	 Alice, 25, New York    |
+            |   1002	|    Kat, 35, Los Angeles   |
+            |   1003	|    Charlie, 22, Miami     |
+            |   1004	|    Bob, 30, Los Angeles   |
+            _________________________________________
+
+________________________________________________________________________________________________________________________
+
+*   How SSTables and LSM Trees are more write efficient than Indexing using B-Trees ?
+
+>>  While SSTables and LSM Trees provide O(log N) time complexity for both read and write operations, similar to B-trees, 
+    LSM Trees and SSTables more suitable for write-heavy workloads because:
+
+    (1) In-memory writes:
+
+        - In B-trees, insert/update require random writes to disk, which can significantly impact write performance, 
+          especially when there's a large number of concurrent writes.
+
+        - LSM Trees have a unique design where writes are first buffered in memory (in the memtable) and periodically 
+          flushed to disk as SSTables. This reduces the need for frequent random writes to disk, which can be costly in 
+          B-tree-based systems even if time complexity ib both case is O(log(n)).
+
+    (2) Efficient Handling of Deletes and Updates:
+
+        - STables and LSM Trees handle deletes and updates more efficiently. When a key is deleted or updated, it doesn't 
+          require modifying the tree structure. Instead, the update or delete is just a new entry in the memtable or a 
+          new SSTable. The obsolete data is eventually purged during the compaction process.
+
+        - In contrast, B-trees require explicit modification of the tree structure (node splitting, rebalancing), which 
+          can become more complex and resource-intensive, especially in systems with high rates of updates and deletes.
+
+    (3) Compaction in LSM Trees vs. Rebalancing in B-trees:
+
+        - Compaction in LSM trees happens in the background and can be done in bulk, so it's more efficient for 
+          write-heavy workloads.
+
+        - B-trees, however, require rebalancing after every insertion, deletion, or update. This rebalancing is not as 
+          efficient for write-heavy workloads because it involves rearranging nodes, redistributing keys, and 
+          maintaining the tree's balance after every operation.
+
+________________________________________________________________________________________________________________________
+
 *   What are the properties of SQL DBMS ?
 
 >>  (1) Fixed Schema:
@@ -122,6 +243,18 @@ ________________________________________________________________________________
         SQL supports complex queries, joins, aggregations, subqueries, and analytical operations, making it versatile 
         for data retrieval and manipulation.
 
+________________________________________________________________________________________________________________________
+
+*   List out DBMS which leverages SSTables and LSM Trees ?
+
+>>  Several NoSQL databases and distributed databases leverage SSTables and LSM Trees to manage data efficiently. 
+
+    Databases That Leverage SSTables and LSM Trees:
+
+        - Cassandra
+        - HBase
+        - LevelDB 
+        
 ________________________________________________________________________________________________________________________
 
 *   What are the properties of NoSQL DBMS ?
@@ -550,4 +683,60 @@ ________________________________________________________________________________
             
             Use Case: For PostgreSQL users looking for distributed and horizontally scalable database solutions.
 
+________________________________________________________________________________________________________________________
+
+*   What is WAL (Write-Ahead Logging) ?
+
+>>  WAL is a logging mechanism that records changes to data in a log file in a sequential fashion before the changes are 
+    committed to the main database. 
+    
+    This ensures that even if a failure occurs during a write operation, the system can recover and maintain a consistent 
+    state by replaying or rolling back changes from the log.
+
+    How WAL Works:
+
+        (1) Transaction Initiation: 
+        
+            When a transaction starts making changes (e.g., inserting or updating records), these changes are not 
+            immediately written to the database files.
+
+        (2) Log Entry Creation: 
+        
+            Instead, they are first recorded in a log file called the WAL. This log contains details about the data 
+            changes, including both before and after values.
+
+        (3) Commit Operation: 
+        
+            Once the changes are safely written to the WAL, the transaction is considered committed. This ensures 
+            that the data can be recovered even if the database crashes immediately after committing.
+
+        (4) Flushing to Disk: 
+        
+            The WAL is stored on disk, providing durability because it persists beyond a system crash.
+
+        (5) Applying Changes: 
+        
+            Periodically, the changes logged in the WAL are applied to the main database files in a process known as 
+            checkpointing.
+
+        (6) Crash Recovery: 
+        
+            If a crash occurs before the database files are updated, the WAL is used to replay the changes and bring 
+            the database to a consistent state.
+
+        (7) WAL Truncation:
+
+            After a successful checkpoint, the portions of the WAL that are no longer needed for recovery (i.e., those 
+            that have already been applied to the main database) can be truncated or deleted.
+
+            This means that the database maintains only the recent history in the WAL.
+
+            By truncating old parts of the WAL, the database minimizes the size of the log and speeding up the recovery 
+            process through checkpointing.
+
+    This functionality comes built-in with most modern relational and NoSQL database systems. It is an integral part of 
+    the database's transaction management and recovery system to ensure ACID compliance.
+
+    PostgreSQL, MySQL, Oracle Database, SQL Serve, MongoDB, Cassandra etc has these feature built-in.
+    
 ________________________________________________________________________________________________________________________
