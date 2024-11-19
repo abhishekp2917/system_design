@@ -254,7 +254,7 @@ ________________________________________________________________________________
         - Cassandra
         - HBase
         - LevelDB 
-        
+
 ________________________________________________________________________________________________________________________
 
 *   What are the properties of NoSQL DBMS ?
@@ -578,6 +578,91 @@ ________________________________________________________________________________
             Ensuring data consistency across partitions can be more challenging, especially when updates involve columns 
             from different partitions.
 
+________________________________________________________________________________________________________________________
+
+*   How indexing work in Partitioned Database ?
+
+>>  In database systems, local and global indexes are indexing strategies commonly used in Partitioned Databases to 
+    optimize query performance.
+
+    (1) Local Index:
+
+        A local index is built within each individual partition of the database. It is specific to a single partition, 
+        and the indexing scope is limited to the data in that partition. 
+
+        Example :
+
+            Consider an e-commerce database where Order Table is partitioned by CustomerID and Orders are indexed by 
+            OrderDate within each of the partitions.
+
+                Partition-1: Data for CustomerID 1-1000.
+                ______________________________________________________________
+                |   OrderID |   CustomerID  |   OrderAmount  |   OrderDate   |  
+                |____________________________________________________________|
+                |   1       |       60      |   4000.0       |  2024-01-01   |
+                |   4       |       50      |   670.0        |  2024-01-03   |
+                |   20      |       2       |   560.0        |  2024-01-15   |
+                |   37      |       60      |   4190.0       |  2024-02-16   |
+                |____________________________________________________________|
+
+                Partition-2: Data for CustomerID 1001-2000.
+                ______________________________________________________________
+                |   OrderID |   CustomerID  |   OrderAmount  |   OrderDate   |  
+                |____________________________________________________________|
+                |   2       |       1002    |   666.0        |  2024-01-02   |
+                |   3       |       1500    |   9199.0       |  2024-01-02   |
+                |   11      |       1060    |   4450.0       |  2024-01-04   |
+                |   40      |       1500    |   1980.0       |  2024-02-17   |
+                |____________________________________________________________|
+                
+            If you query for all orders by CustomerID = 1500 and OrderDate > '2024-01-01', the query will only use 
+            the local index in Partition-2 because all the data for CustomerID = 1500 resides in Partition-2.
+
+        Benefits:
+
+            - Faster for queries that are limited to a specific partition.
+
+        Drawbacks:
+
+            - Queries that span multiple partitions may require additional effort to combine results, as no single 
+              index covers all partitions.
+
+    (2) Global Index:
+
+        A global index is built across all partitions of the database. It provides a unified indexing structure, 
+        enabling queries to find data across multiple partitions.
+
+        Example:
+            
+            Using the same e-commerce database, a global index could be built on OrderDate.
+
+                All orders from all partitions are indexed by OrderDate:
+                ______________________________________________________________
+                |   OrderID |   CustomerID  |   OrderAmount  |   OrderDate   |  
+                |____________________________________________________________|
+                |   1       |       60      |   4000.0       |  2024-01-01   |
+                |   2       |       1002    |   666.0        |  2024-01-02   |
+                |   3       |       1500    |   9199.0       |  2024-01-02   |
+                |   4       |       50      |   670.0        |  2024-01-03   |
+                |   11      |       1060    |   4450.0       |  2024-01-04   |
+                |   20      |       2       |   560.0        |  2024-01-15   |
+                |   37      |       60      |   4190.0       |  2024-02-16   |
+                |   40      |       1500    |   1980.0       |  2024-02-17   |
+                |____________________________________________________________|
+
+
+            If you query for all orders placed after '2024-01-01', the global index can directly locate the relevant 
+            data across all partitions, avoiding the need to scan each one individually.
+
+        Benefits:
+
+            - Enhances performance for read operation that span accross partition.
+            
+        Drawbacks:
+
+            - Slow on write-heavy workloads because need to write to each partition to update the global index.
+            - Adds up complexity by requiring coordination between partitions to keep the global index up to date.
+            
 ________________________________________________________________________________________________________________________
 
 *   What are various technologies for Shard management ? 
