@@ -56,22 +56,40 @@ ________________________________________________________________________________
         NoSQL databases are designed for high read/write throughput, making them ideal for applications that need to 
         handle large volumes of data and high traffic.
 
-    (3) ACID vs BASE Properties:
+    (3) BASE Compliance:
+
+        (a) Basically Available (BA):
+
+            The system guarantees availability, meaning it will always respond to requests, even if some responses may 
+            be inconsistent or stale. This ensures the system remains operational under failure conditions.
+
+        (b) Soft State (S):
+
+            The system state may change over time, even without new inputs. This reflects that the system does not have 
+            to be in a consistent state at all times. Data may be temporarily inconsistent as the system works to achieve 
+            eventual consistency.
+
+        (c) Eventual Consistency (E):
+
+            The system guarantees that, given enough time without new updates, all nodes in the system will converge to 
+            the same consistent state. This is a weaker consistency model compared to ACID.
+
+    (4) ACID vs BASE Properties:
 
         While most NoSQL databases do not fully adhere to ACID properties, they often follow BASE principles, focusing 
         on availability and eventual consistency to achieve high performance and scalability.
 
-    (4) Support for Big Data:
+    (5) Support for Big Data:
 
         NoSQL databases are suited for applications that need to process and store vast amounts of unstructured or 
         semi-structured data and can handle real time data processing needs.
 
-    (5) Scalability:
+    (6) Scalability:
 
         NoSQL databases are typically designed to scale out by adding more servers to handle increased loads, rather than 
         scaling up with more powerful hardware.
 
-    (5) High Availability and Fault Tolerance:
+    (7) High Availability and Fault Tolerance:
 
         Data is often replicated across multiple nodes to ensure availability in case of failures.
 
