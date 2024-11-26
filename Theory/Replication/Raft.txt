@@ -1,0 +1,229 @@
+*   What is Raft ?
+
+>>  Raft is a consensus algorithm designed to manage a replicated log in distributed systems.
+
+    Raft is used to ensure that a distributed system can agree on a consistent state despite network failures.
+
+    For e.g. in Single-Leader, Raft ensures that any write operation that leader recieves gets committed to the state 
+    machine only after its has been replicated to majority of the followers. 
+
+    Raft ensures strong consistency but at a cost of higher latency.
+
+    Raft has three primary responsibilities:
+
+        (1) Leader Election: 
+        
+            Ensures that a cluster elects one leader and that the leader is the only node that can process client 
+            requests that modify the state.
+
+        (2) Log Replication: 
+        
+            Ensures that all changes to the system's state are propagated to all nodes in the same order, maintaining a 
+            consistent state across all replicas.
+
+        (3) State Machine Application: 
+        
+            Ensures that committed logs (agreed upon by the majority) are applied to the state machine on each node, 
+            so they all behave consistently.
+
+________________________________________________________________________________________________________________________
+
+*   How Leader election happens in Raft ?
+
+>>  Here's a step-by-step breakdown of how Raft handles leader election:
+
+    (1) Initial State:
+
+        - Each server in the Raft cluster starts as a follower.
+        
+        - Each follower has a randomized election timeout (e.g., 150–300ms) which means if no communication is received 
+          from a leader (via heartbeat messages) within this timeout, the follower assumes the leader has failed.
+
+
+    (2) Transition to Candidate:
+
+        - If a follower’s election timeout expires, it increments its current term and transitions to the candidate state.
+
+        - After transition, it broadcasts RequestVote RPCs to all other servers.
+
+
+    (3) Voting Process:
+
+        - Each server, upon receiving a RequestVote RPC, considers granting its vote based on these conditions:
+
+            (a) The candidate’s term must be greater than or equal to the recipient’s current term.
+            (b) The candidate’s log must be at least as complete as the recipient’s log.
+
+
+    (4) Repeated Elections:
+
+        - There are chance where a candidate couldn't get majority or there could be a scenario where there are multiple 
+          candidates in an election due to misconfiguration of followers election timeout.
+
+        - In such scenarios, candidates increment their term and start a new election with new randomized timeouts.
+
+    
+    (5) Election Victory:
+
+        - If a candidate receives a majority of votes, it becomes the new leader and begins sending heartbeat messages 
+          to followers, signaling its leadership.
+
+        - Candidates receiving heartbeats from the new leader transition back to the follower role and starts receiving
+          replication log enteries.
+
+________________________________________________________________________________________________________________________
+
+*   How Raft ensures consistency through log replication ?
+
+>>  Here’s a detailed explanation of how log replication works in Raft and how it ensures consistency:
+
+    (1) Key Components of Log Replication:
+
+        (a) Log entry:
+            
+            (i) Index: The position of the log entry in the sequence.
+            (ii) Term: The term in which the entry was created (to detect stale data).
+            (iii) Command: The actual operation (e.g., insert, delete etc).
+
+        (b) AppendEntries RPC:
+
+            The leader sends an AppendEntries RPC to each follower which contains:
+
+                - New log entries to replicate.
+                - The index and term of the leader's previous log entry (to ensure log continuity).
+                - The leader's commit index (indicating which entries are safe to apply to the state machine).
+
+    (2) Steps in Log Replication:
+
+        (a) Client Request:
+
+            - A client sends a write request (e.g., SET key=value) to the leader.
+            - The leader appends the command as a new log entry in its own log but does not apply it to its state machine yet.
+
+
+        (b) Log Propagation:
+
+            - The leader sends an AppendEntries RPC to all followers, asking them to replicate the new log entry.
+            - The leader includes the previous log index and term for followers to verify log consistency.
+
+        (c) Follower Verification:
+
+            Each :
+            
+            - The follower checks if it has the log entry corresponding to the previous log index and term provided by the leader.
+            - If not, the follower signals a mismatch, and the leader retries with an earlier log index until the logs match.
+            - Once the follower confirms consistency, it appends the new log entry to its own log.
+
+        (d) Commitment:
+
+            - The leader considers a log entry committed once it has been replicated to a majority of nodes (including itself).
+            - The leader updates its commit index and sends this index to the followers in subsequent heartbeats (AppendEntries RPCs).
+
+        (e) Applying to State Machine:
+
+            - Once a log entry is committed:
+            - The leader applies the entry to its state machine and sends a response to the client.
+            - Followers also apply the committed entry to their state machines as they receive the updated commit index from the leader.
+    
+    (3) Example Walkthrough:
+
+        Log Format in this example is [Index:Term:Command].
+
+        Case 1: Leader with a latest Term
+
+            (a) Initial State:
+
+                _____________________________________________________________________
+                |   Leader          :   [ [1:1:a], [2:1:b], [3:2:c] ]               |
+                |___________________________________________________________________|
+
+                _____________________________________________________________________
+                |   Follower        :   [ [1:1:a], [2:1:b], [3:1:x], [4:1:y] ]      |
+                |___________________________________________________________________|
+
+                Follower has divergent entries [3:1:x] and [4:1:y]
+
+            (b) Leader Appends a New Entry [4:2:d]:
+
+                _____________________________________________________________________
+                |   Leader          :   [ [1:1:a], [2:1:b], [3:2:c], [4:2:d] ]      |
+                |___________________________________________________________________|
+            
+            (c) Leader sends an AppendEntries RPC with:
+
+                prevLogIndex    : 3 (referring to [3:2:c])
+                prevLogTerm     : 2 (referring to [3:2:c])
+                Log entry       : [4:2:d]
+
+            (d) Follower Detects a Mismatch:
+
+                The follower checks:
+                    - Does prevLogIndex exist in its log? 
+                    - Does prevLogTerm match the term of entry?
+                
+                The follower detects a mismatch and rejects the AppendEntries RPC.
+
+            (e) Leader Resolves the Mismatch:
+
+                The leader decrements prevLogIndex and retries with the previous log entry and sends prevLogIndex=2 and
+                prevLogTerm=2.
+
+                The follower confirms that [2:1:b] matches.
+
+            (f) Log Fixing:
+
+                The leader deletes all follower log entries after [2:1:b].
+                The leader sends [3:2:c] and then [4:2:d] to the follower.
+
+            (g) Final State After Sync:
+
+                _____________________________________________________________________
+                |   Leader          :   [ [1:1:a], [2:1:b], [3:2:c], [4:2:d] ]      |
+                |___________________________________________________________________|
+
+                _____________________________________________________________________
+                |   Follower        :   [ [1:1:a], [2:1:b], [3:2:c], [4:2:d] ]      |
+                |___________________________________________________________________|
+
+
+        Case 2: Leader with an Outdated Term
+            
+            If a leader with an outdated term tries to append entries, Raft ensures consistency by rejecting the 
+            leader’s requests and forcing it to step down.
+
+            (a) Cluster State:
+
+                _____________________________________________________________________
+                |   Follower-1      :   [ [1:1:a], [2:3:b] ]                        |
+                |___________________________________________________________________|
+
+                _____________________________________________________________________
+                |   Follower-2      :   [ [1:1:a], [2:3:b] ]                        |
+                |___________________________________________________________________|
+
+                _____________________________________________________________________
+                |   Outdated Leader :   [ [1:1:a], [2:2:c], [3:2:d] ]               |
+                |___________________________________________________________________|
+
+            (b) Outdated Leader Tries to Append Entries:
+
+                prevLogIndex    : 2 (referring to [2:2:c])
+                prevLogTerm     : 2 (referring to [2:2:c])
+                Log entry       : [3:2:d]
+
+            (c) Followers Reject the Request:
+
+                Followers compare the leader's term (2) with their own term (3).
+                Since the leader's term is outdated, they reject the request and respond with their current term (3).
+
+            (d) Leader Steps Down:
+
+                Upon receiving responses with a higher term (3), the outdated leader updates its term to 3 and steps 
+                down to become a follower.
+
+            (e) New Leader Handles AppendEntries:
+
+                A new leader (Follower 1 or 2) is elected in term 3.
+                The new leader ensures that all logs are consistent before appending new entries.
+
+________________________________________________________________________________________________________________________

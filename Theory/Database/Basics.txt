@@ -1,0 +1,138 @@
+*   What is Indexing in Database ?
+
+>>  Indexing in databases is a technique used to improve the speed of data retrieval operations (time complexity: log(n)) 
+    on a table at the cost of additional storage space. 
+    
+    It works by creating a data structure (often a B-tree or hash index) that allows the database to quickly locate 
+    rows based on the values in indexed columns, without scanning the entire table.
+
+    Let for the given below table, index is applied in column 'last_name', then DB will create a B-tree of the data shown 
+    below. 
+            ________________________________
+            | id  | first_name | last_name |
+            |-----|------------|-----------|
+            | 1   | John       | Allen     |
+            | 2   | Jason      | Ford      |
+            | 3   | Johnathan  | Roberts   |
+            | 4   | Joseph     | Nelson    |
+            | 5   | Jamie      | Moore     |
+            | 6   | Jim        | Clark     |
+            | 7   | Jeremy     | Quinn     |
+            | 8   | Julie      | Green     |
+            | 9   | Joan       | Smith     |
+            | 10  | Jill       | Evans     |
+            | 11  | Jake       | Davis     |
+            | 12  | Jordan     | Taylor    |
+            | 13  | Jerome     | Lee       |
+            | 14  | Julia      | James     |
+            | 15  | Jasmine    | Irwin     |
+            | 16  | Jack       | Hill      |
+            | 17  | Jane       | Brown     |
+            | 18  | Janelle    | Olsen     |
+            | 19  | Jacek      | King      |
+            | 20  | Justin     | Park      |
+            |_____|____________|___________|
+    
+    
+                    _______________ [Evans, Lee] _________________________________________________________
+                    |                      |                                                             |           
+                    |                      |                                                             |          
+                    |                      |                                                             |              
+                    |                      |                                                             |  
+        _________ [Clark]________       [Ford, Irwin] _______                                ______ [Quinn, Roberts] ___________
+        |                       |           |               |                                |                                 |
+        |                       |           |               |                                |                                 |
+        |                       |           |               |                                |                                 |
+        |                       |           |               |                                |                                 |      
+    [Allen, Brown]           [Davis]  [Green, Hill]      [James, King]        _______ [Olsen, Park]                    [Smith, Taylor]
+                                                                              |                                       
+                                                                              |               
+                                                                              |               
+                                                                              |               
+                                                                      [Moore, Nelson]
+
+    Drawbacks of Indexing:
+        
+        (1) Increased Storage Requirements:
+
+            Each index consumes additional disk space. In cases where there are many indexes, the storage cost can be 
+            substantial.
+            
+            For very large databases, this can lead to significant space management concerns and increased storage 
+            expenses.
+
+        (2) Slower Write Operations:
+
+            Insert, update, and delete operations become slower because the indexes need to be maintained and updated 
+            whenever the data changes.
+
+            Each write operation may involve updating not just the data but also the relevant index structures, which 
+            can add overhead.
+        
+        (3) Complexity in Index Management:
+
+            Maintaining a large number of indexes can make database management more complex. Determining which columns 
+            to index and balancing performance can be challenging.
+
+            Improper index design can lead to inefficient queries and increased maintenance tasks.
+
+________________________________________________________________________________________________________________________
+
+*   What are various technologies that provide support for load balancing database replicas ?
+
+>>  Here is a list of technologies that provide support for load balancing database replicas:
+
+    (1) Database Proxy Solutions
+    
+        (a) ProxySQL:
+
+            Description: A high-performance, open-source proxy for MySQL and MariaDB.
+            
+            Features: Read/write splitting, query routing, load balancing across replicas, failover support, and query caching.
+            
+            Use Case: Ideal for MySQL and MariaDB users needing dynamic query routing and high availability.
+        
+        (b) HAProxy:
+
+            Description: A reliable, open-source load balancer that supports HTTP, TCP, and database traffic.
+            
+            Features: Configurable for load balancing read and write operations, health checks, and failover.
+            
+            Use Case: Can be used for balancing traffic across multiple database replicas and nodes.
+
+        (c) Nginx:
+
+            Description: A web server that also acts as a reverse proxy and load balancer.
+            
+            Features: Can be configured for database load balancing and distributing connections across replicas.
+            
+            Use Case: Suitable for applications that need load balancing for lightweight database requests.
+
+    (2) Database-Specific Load Balancing Solutions
+
+        (a) Vitess:
+
+            Description: An open-source sharding middleware for scaling MySQL.
+            
+            Features: Transparent sharding, read/write splitting, load balancing across replicas, and query aggregation.
+            
+            Use Case: Used in large-scale MySQL deployments for horizontal scalability and load management.
+
+        (b) MongoDB (mongos):
+
+            Description: A query router component used in MongoDB sharded clusters.
+            
+            Features: Routes read and write queries to appropriate shards and supports load distribution among replicas.
+            
+            Use Case: Best for MongoDB clusters that need to balance read queries across secondary nodes.
+        
+        (c) Citus:
+
+            Description: An extension for PostgreSQL that enables distributed database capabilities.
+            
+            Features: Load balancing across worker nodes, parallel query execution, and data redistribution.
+            
+            Use Case: For PostgreSQL users looking for distributed and horizontally scalable database solutions.
+
+________________________________________________________________________________________________________________________
+
