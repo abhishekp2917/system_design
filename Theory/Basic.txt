@@ -1,6 +1,39 @@
 *   What is CAP Theorem ?
 
->>  
+>>  (1) Consistency (C)
+        
+        Consistency ensures that all nodes in the distributed system have the same data at any given time.
+        
+        If a banking system updates a user's account balance, any query to the system reflects the updated balance, no 
+        matter which node the query is routed to.
+
+    (2) Availability (A)
+
+        Availability ensures that every request receives a response, even if some nodes in a cluster are unreachable.
+
+        A social media application allows user to update it's profile at any givn point of time.
+
+    (3) Partition Tolerance (P)
+
+        Partition tolerance means the system continues to operate (e.g., serving reads, monitoring etc) despite network 
+        partitions, where some nodes/replicas in a cluster cannot communicate with others.
+
+        A network partition occurs when a failure (e.g., network outage) prevents nodes from synchronizing with each other.
+
+
+    CAP theorem states that a distributed system during network partitions can either be Consistent or Available but can't
+    be both at the same time. 
+
+    In real world, since network partition in a distributed system is inevitable, Partition Tolerance (P) is usually 
+    considered a necessity.
+        
+    Engineers often face a tradeoff between Consistency (C) and Availability (A).
+
+    For example:
+
+        - In financial systems, Consistency is critical (e.g., account balance accuracy).
+        - In social media systems, Availability is prioritized to ensure users can post and see updates, even if some 
+          data is temporarily inconsistent.
 
 ________________________________________________________________________________________________________________________
 
