@@ -1,0 +1,113 @@
+*   How Single-Leader (Master-Slave) Replication model works ?
+
+>>  Single-Leader Replication is a data replication strategy where a single node (Leader) handles all write operations 
+    and synchronizes the updates with other nodes known as followers. 
+
+    Key Features:
+
+        (1) Centralized Write Operations:
+
+            Only the leader processes and accepts all write requests while followers are strictly replicas and cannot 
+            process writes directly.
+
+        (2) Read Operations:
+
+            Reads can be served by both the leader and followers, allowing for scalability of read-heavy workloads.
+
+        (3) Replication Lag:
+
+            Changes made on the leader are propagated to followers, typically asynchronously. Due to which folowers may 
+            have stale data leading to eventual consistency. 
+
+    Contingency Plans for Failures:
+
+        (1) Follower failure:
+
+            (a) On reboot, the follower queries the cluster to identify the current leader.
+
+            (b) The follower contacts the leader and sends its last log index i.e the last data entry it successfully 
+                replicated.
+
+            (c) The leader compares the follower's log (e.g. Write Ahead Log) with its own to identify missing or outdated entries.
+
+            (d) If follower is slightly behind, the leader will send the incremental log for the follower to apply. If 
+                the follower is significantly outdated, the leader sends a full snapshot of the current database state.
+
+            (c) Once fully synchronized, the follower re-registers with the leader and resumes.
+
+
+        (2) Leader Failure:
+            
+            (a) Use a consensus algorithm like Raft or Paxos to elect a new leader among the available followers.
+
+            (b) Clients redirect write operations to the new leader.
+
+            (c) System remains temporary unavailable for writes during the election process.
+
+            (d) The failed leader, upon recovery, synchronizes itself with the current leader and joins as a follower.
+
+________________________________________________________________________________________________________________________
+
+*   What is Split-Brain Syndrome in Single-Leader Replication strategy ?
+
+>>  The Split-Brain problem occurs in a distributed system when two nodes (or processes) simultaneously believe they are 
+    the leader or head of the system.
+
+    How Split-Brain Happens:
+
+        (1) Network Partition:
+
+            - The system (Followers) is split into two (or more) partitions that cannot communicate with each other.
+            
+            - Each partition may independently elect a new leader if the original leader is unreachable, believing it is 
+              the correct leader.
+
+        (2) Failure to Detect the Leader's Status:
+
+            - If a leader node goes down and then recovers, it may not be aware that a new leader has already been elected.
+            
+            - Upon recovery, the failed leader may assume it is still the leader and resume its operations, which 
+              conflicts with the newly elected leader.
+
+        (3) Leader Election Race Condition:
+
+            - Multiple nodes may attempt to become the leader simultaneously due to a lack of synchronization or quorum 
+              misconfiguration.
+
+            - Each node may think it has won the leader election, leading to multiple nodes trying to manage writes and 
+              data replication.
+
+    How to prevent Split-Brain Syndrome:
+
+        - Use algorithms like Raft or Paxos that rely on a majority quorum to elect a single leader.
+
+        - Implement Fencing Token to reject the failed leader. 
+
+________________________________________________________________________________________________________________________
+
+*   What is Fencing Token ?
+
+>>  A Fencing Token is a mechanism used in distributed systems (Single-Leader) to ensure that only one leader is active 
+    at a time and to prevent multiple leaders from performing conflicting operations.
+
+    It is commonly used to prevent a failed leader from resuming as the leader after its recovery, avoiding split-brain 
+    scenarios.
+
+    How Fencing Tokens Work:
+
+        (1) Leader Election:
+
+            - When a new leader is elected, it is assigned a unique fencing token (e.g. token=64).
+            
+            - The leader performs operations and includes this fencing token in its communication with other nodes.
+
+        (2) Failure and Recovery:
+
+            - If the leader fails, the system will elect a new leader and assign it a new fencing token (e.g. token=65).
+
+            - The failed leader, upon recovery, checks the fencing token it previously held (token=64).
+            
+            - If the token it holds is lower than the current token (from the newly elected leader), the failed leader 
+              is fenced off (rejected) and cannot act as the leader but as a follower.
+
+________________________________________________________________________________________________________________________

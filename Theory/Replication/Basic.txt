@@ -1,0 +1,30 @@
+*   What are various types of Replication ?
+
+>>  (1) Synchronous Replication:
+        
+        Data is written to all the replicas simultaneously before sending acknowledgment to the client, ensuring all 
+        nodes have consistent data at any point.
+        
+        Advantages:
+            
+            - Strong consistency.
+        
+        Disadvantages:
+            
+            - Slower write performance due to the need for acknowledgments from all replicas.
+
+    (2) Asynchronous Replication:
+
+        Data is written to the primary node and it sends the acknowledgment to the client. The data propagates to replicas
+        later.
+
+        Advantages:
+        
+            - Faster write operations.
+        
+        Disadvantages:
+            
+            - Data may be temporarily inconsistent across replicas.
+            - Risk of data loss if the primary fails before replication completes.
+
+________________________________________________________________________________________________________________________

@@ -1,0 +1,119 @@
+*   How Multi-Leader Replication model works ?
+
+>>  
+
+________________________________________________________________________________________________________________________
+
+*   Why system clocks are unreliable when ensuring event order in distributed systems ?
+
+>>  Each node in a distributed system maintains its own system clock, which can diverge over time.
+
+    Clocks on different nodes might report slightly different times for the same event. This inconsistency makes it 
+    hard to determine the correct order of events across nodes.
+
+    Following are the reasons for inconsistency in system clocks:
+
+        (1) Imperfect Clock Synchronization:
+
+            Protocols like NTP (Network Time Protocol) or PTP (Precision Time Protocol) attempt to synchronize clocks 
+            across systems at regular interval. 
+
+            But since synchronization requires network call which can vary from system to system, leading to inaccurate 
+            synchronization.
+
+        (2) Clock Drift:
+
+            Even if clocks are initially synchronized, they can diverge over time due to variations in internal quartz 
+            clock frequencies.
+
+________________________________________________________________________________________________________________________
+
+*   What is a Vector Clock and how it detects concurrent writes ?
+
+>>  A Vector Clock is a mechanism to detect concurrent events in a distributed system.
+
+    Events are considered concurrent if no node has knowledge of the other node’s event.
+
+    Vector Clocks maintain an array of counters of size N (N = number of nodes), one for each node in the system to 
+    represent count of events that took place on each node.
+    
+    Comparison Rules in Vector Clocks:
+
+        To determine the causal relationship between two events, compare their vectors:
+
+            (a) Happened-Before Relationship (->):
+
+                Event 𝐸1 happens before E2 if 𝑉(𝐸1)[i]≤𝑉(𝐸2)[i] for all i, and at least one V(E1)[i]<V(E2)[i].
+
+            (b) Concurrent Events:
+
+                Events E1 and E2 are concurrent (E1∣∣E2) if at least one V(E1)[i]<V(E2)[i] and one V(E1)[i]>V(E2)[i].
+
+    How Vector Clock works:
+
+        (1) Initial State:
+
+            Node A: [0, 0, 0]
+            Node B: [0, 0, 0]
+            Node C: [0, 0, 0]
+
+            Intially all the node has zero events (e.g., writes), representing all the nodes are in sync.
+
+        (2) Write request at A:
+
+            Node A increments its own clock.
+
+            Node A: [1, 0, 0]
+            Node B: [0, 0, 0]
+            Node C: [0, 0, 0]
+
+        (3) Write request at B:
+
+            Node B increments its own clock.
+
+            Node A: [1, 0, 0]
+            Node B: [0, 1, 0]
+            Node C: [0, 0, 0]
+
+        (3) A sends message to B for synchronization:
+
+            For the events to be concurrent, there must be at least one index where A[i] > B[i] and another where 
+            B[i] > A[i]. Here, A[0] > B[0] and B[1] > A[1], so the events are concurrent.
+
+            Therefore, Node B will merge the changes done on Node A and update it's vector. 
+
+            Before : 
+
+                Node A: [1, 0, 0]
+                Node B: [0, 1, 0]
+                Node C: [0, 0, 0]
+
+            After :
+
+                Node A: [1, 0, 0]
+                Node B: [1, 1, 0]
+                Node C: [0, 0, 0]
+
+        (4) B sends message to A and C for synchronization:
+
+            When Node B sends its vector clock to Node A and Node C, 
+
+                - Node A sees that B[1] > A[1], meaning B's event happens after A's.
+                - Node C sees B[0] > C[0] and B[1] > C[1], meaning B's event happens after C's. 
+
+            Therefore, Node A and Node C will update their clocks and synchronize with Node B's event.
+
+            Before : 
+
+                Node A: [1, 0, 0]
+                Node B: [1, 1, 0]
+                Node C: [0, 0, 0]
+
+            After :
+            
+                Node A: [1, 1, 0]
+                Node B: [1, 1, 0]
+                Node C: [1, 1, 0]
+
+
+________________________________________________________________________________________________________________________
