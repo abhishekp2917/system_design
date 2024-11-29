@@ -46,6 +46,14 @@
 
             (d) The failed leader, upon recovery, synchronizes itself with the current leader and joins as a follower.
 
+    Benefits:
+
+        - No write conflicts as single leader handles write request.
+        - Simple architecture compare to other replication models.
+
+    Drawbacks:
+
+        - Single point of failure because single node is serving write request. 
 ________________________________________________________________________________________________________________________
 
 *   What is Split-Brain Syndrome in Single-Leader Replication strategy ?

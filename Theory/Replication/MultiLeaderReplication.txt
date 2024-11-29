@@ -1,6 +1,82 @@
 *   How Multi-Leader Replication model works ?
 
->>  
+>>  Multi-leader replication is a type of replication strategy in distributed systems where multiple nodes act as 
+    leaders and can handle write requests. 
+
+    Key Characteristics of Multi-Leader Systems:
+        
+        (1) Leader Nodes: 
+        
+            - Multiple leaders can exist and each leader node can accept write operations. 
+            - They can handle writes for different data partitions or the same data with conflict resolution mechanisms.
+
+        (2) Follower Nodes: 
+        
+            - Even though the system is termed "multi-leader," the concept of followers still applies. 
+            - If a node is not the leader for a specific piece of data, it will replicate the changes made by the leader node. 
+
+    Example Scenario:
+        
+        - Node A, Node B, and Node C are part of a multi-leader system.
+        
+        - Node A acts as the leader for user data and can accept writes related to user data. It will then replicate 
+          these changes to Node B and Node C (which act as followers for user data).
+
+        - Similarly, Node B might act as a leader for product data, and Node C could be the leader for order data.
+        
+        - If Node A fails, Node B or Node C can take over its responsibilities (depending on how the replication and 
+          conflict resolution mechanisms are designed).
+          
+    Benefits :
+
+        - Fault tolerant in terms of write request due to multiple leaders.
+        - Higher write throughput.
+
+    Drawbacks:
+
+        - Write conflicts between multiple leaders.  
+________________________________________________________________________________________________________________________
+
+*   What are various conflict resolution techniques ?
+
+>>  (1) Last Write Wins (LWW):
+
+        - The system retains the most recent update based on a timestamp. 
+        - When conflicts arise, the update with the latest timestamp overwrites others.
+
+        Advantages: 
+            
+            - Simple and easy to implement.
+
+        Disadvantages: 
+        
+            - Can result in data loss if older, important updates are overwritten by newer but less significant ones.
+            - System clocks are unreliable when dealing with timestamp.
+
+    (2) Application-Level Conflict Resolution:
+
+        - The application logic explicitly defines how conflicts are resolved based on domain-specific rules.
+
+        Advantages: 
+        
+            - Customizable to business needs and allows complex conflict resolution strategies.
+
+        Disadvantages: 
+        
+            - Adds complexity and requires developers to implement resolution logic.
+
+    (3) Database-Level Conflict Resolution (Vector Clock):
+        
+        - Uses vector clock to track the order of updates.
+        - Conflicting updates are merged or rejected based on vector clock comparisons.
+
+        Advantages: 
+        
+            - Allows precise tracking of causality between updates.
+
+        Disadvantages: 
+        
+            - Can become complex with many nodes.
 
 ________________________________________________________________________________________________________________________
 
@@ -32,7 +108,7 @@ ________________________________________________________________________________
 
 >>  A Vector Clock is a mechanism to detect concurrent events in a distributed system.
 
-    Events are considered concurrent if no node has knowledge of the other node’s event.
+    Two events are considered concurrent if each node has no knowledge of the other node’s event when it happened.
 
     Vector Clocks maintain an array of counters of size N (N = number of nodes), one for each node in the system to 
     represent count of events that took place on each node.
