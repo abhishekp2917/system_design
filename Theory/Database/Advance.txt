@@ -180,15 +180,16 @@ ________________________________________________________________________________
             By truncating old parts of the WAL, the database minimizes the size of the log and speeding up the recovery 
             process through checkpointing.
 
+    Example:
+
+        Log Entry 1: BEGIN TRANSACTION 12345
+        Log Entry 2: UPDATE accounts SET balance = balance - 500 WHERE account_id = 1;
+        Log Entry 3: UPDATE accounts SET balance = balance + 500 WHERE account_id = 2;
+        Log Entry 4: COMMIT TRANSACTION 12345
+
     This functionality comes built-in with most modern relational and NoSQL database systems. It is an integral part of 
     the database's transaction management and recovery system to ensure ACID compliance.
 
     PostgreSQL, MySQL, Oracle Database, SQL Serve, MongoDB, Cassandra etc has these feature built-in.
-    
-________________________________________________________________________________________________________________________
-
-*   What is Logical Log ?
-
->>  
 
 ________________________________________________________________________________________________________________________
