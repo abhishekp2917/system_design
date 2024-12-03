@@ -1,0 +1,80 @@
+*   What is Vertical Scaling ?
+
+>>  Vertical scaling involves increasing the capacity of a single machine by adding more resources such as CPU, RAM, or 
+    storage. 
+    
+    Instead of spreading out the workload across multiple machines, the existing machine is upgraded to handle larger or 
+    more demanding tasks.
+
+    Example: Upgrading a server from 16 GB of RAM to 64 GB of RAM or from a 4-core CPU to a 16-core CPU.
+
+    Benefits:
+
+        (1) Simplicity: 
+        
+            Easier to implement since you’re upgrading an existing system without modifying software to support 
+            distributed computing.
+
+        (2) No Additional Software Changes: 
+        
+            Applications usually don’t need to be modified to take advantage of increased resources.
+
+        (3) Consistency: 
+        
+            Data is managed on a single server, reducing issues related to data consistency and synchronization.
+
+    Drawbacks:
+
+        (1) Limitations on Capacity: 
+        
+            Physical hardware has a limit; there’s only so much you can scale a single machine. Eventually, you will 
+            reach the maximum capacity of resources that a machine can handle.
+
+        (2) Single Point of Failure: 
+        
+            If the machine fails, the entire service goes down, making it less fault-tolerant.
+
+        (3) Higher Costs: 
+        
+            Upgrading to high-end hardware can be expensive and may involve diminishing returns on investment as 
+            hardware becomes more advanced.
+
+________________________________________________________________________________________________________________________
+
+*   What is Horizontal Scaling ?
+
+>>  Adding more servers to a cluster that runs a distributed database like Apache Cassandra or a web application served 
+    by load-balanced web servers.
+
+    Benefits:
+
+        (1) Virtually Unlimited Scaling: 
+        
+            You can keep adding machines to scale out and handle more load, making it more flexible for large-scale 
+            systems.
+
+        (2) Fault Tolerance and Redundancy: 
+        
+            The failure of a single node doesn’t impact the whole system as the workload is shared among other nodes.
+
+    Drawbacks:
+
+        (1) Complexity: 
+        
+            Implementing horizontal scaling requires significant changes to the architecture of the application to 
+            ensure it can operate as a distributed system.
+
+            More machines mean more infrastructure to manage, requiring robust orchestration tools and skills 
+            for administration.
+
+        (2) Data Consistency Challenges: 
+        
+            Keeping data consistent across multiple nodes can be challenging, especially for systems that require 
+            real-time synchronization.
+
+        (3) Network Latency and Overhead: 
+        
+            Communication between nodes introduces network overhead, which can affect performance.
+
+________________________________________________________________________________________________________________________
+
