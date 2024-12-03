@@ -1,0 +1,144 @@
+*   When to incorporate caching in a system ?
+
+>>  (1) Frequent Access to the Same Data:
+
+        Caching reduces the load on the database or backend by serving the frequently access data from the cache.
+
+    (2) Expensive Computations:
+
+        If generating data is computationally expensive, caching the results eliminates redundant computations.
+    
+    (3) Global Accessibility:
+
+        If users from different geographic regions access your application,a distributed caching solution, like a CDN, 
+        reduces latency by serving data from nodes closest to the user.
+        
+    (4) Read-Heavy Workloads:
+
+        If a system has a high ratio of read operations compared to writes, caching reduces read load on the 
+        primary data source.
+
+________________________________________________________________________________________________________________________
+
+*   What are various caching techniques in terms of scope ?
+
+>>  (1) Local Caching:
+        
+        Local caching refers to storing cached data within the same system or server where the application runs.
+
+                                _________          _____________
+                                |       |          |           |
+                                |   A   |          | Server-1  |
+                                |   P   |--------->|           |                   
+        _____________           |   I   |          |___________|--------|      
+        |           |           |       |          |  cache-1  |        |      _____________
+        |  client   |---------->|   G   |          |___________|        |----->|           |
+        |___________|           |   A   |                                      | Database  |
+                                |   T   |                                      |           |               
+                                |   E   |          _____________        |----->|___________|
+                                |   W   |          |           |        |       
+                                |   A   |          | Server-2  |        |
+                                |   Y   |--------->|           |        |
+                                |       |          |___________|--------|
+                                |_______|          |  cache-2  |
+                                                   |___________|
+
+        Key Characteristics:
+            
+            - The cache is isolated to a single instance of the application.    
+            - Typically stored in the application’s memory or local disk.
+            - Fastest access because no network communication is needed.
+
+        Advantages:
+        
+            - Low Latency: Since the data is stored on the same machine, retrieval is extremely fast.
+            - Simplicity: Easy to implement and requires minimal infrastructure.
+            - Cost-Effective: No additional infrastructure for caching is needed.
+
+        Disadvantages:
+            
+            - Not Scalable: Storage capacity of the server is limited.
+            - No Synchronization: Cache is not shared, so multiple application instances can have inconsistent cache states.
+
+    (2) Distributed Caching:
+        
+        Distributed caching stores cached data across multiple nodes in a distributed system, making the cache 
+        accessible to all applications in the system.
+
+        
+                                _________          _____________               ___________________________________
+                                |       |          |           |               |         Cache Cluster           |                                    
+                                |   A   |          |           |               | _____________     _____________ |                            
+                                |   P   |--------->|  Server-1 |               | |           |     |           | |    
+        _____________           |   I   |          |           |--------|      | |           |     |           | |
+        |           |           |       |          |           |        |      | |  cache-1  |     |  cache-1  | |      _____________
+        |  client   |---------->|   G   |          |___________|        |      | |           |     |           | |      |           |
+        |___________|           |   A   |                               |----->| |___________|     |___________| |      | Database  | 
+                                |   T   |                                      |        _____________            |----->|           |                         
+                                |   E   |          _____________        |----->|        |           |            |      |___________|
+                                |   W   |          |           |        |      |        |           |            |      
+                                |   A   |          |           |        |      |        |  cache-1  |            |
+                                |   Y   |--------->|  Server-2 |        |      |        |           |            |
+                                |       |          |           |--------|      |        |___________|            |
+                                |_______|          |           |               |                                 |
+                                                   |___________|               |_________________________________|
+        Key Characteristics:
+            
+            - The cache is shared across the network, allowing multiple instances of an application to access it.
+            - Data is distributed among multiple cache nodes, often using consistent hashing for placement.
+        
+        Advantages:
+            
+            Scalable: Additional nodes can be added to handle increased cache size or traffic.
+            Fault Tolerant: If one node fails, others can take over.
+            Global Cache State: Provides a consistent view of cached data across all application instances.
+
+        Disadvantages:
+            
+            Network Overhead: Slightly higher latency due to network communication.
+            Complexity: Requires additional setup and maintenance for cache clusters.
+            Data Consistency: Managing synchronization and replication can be challenging.
+
+________________________________________________________________________________________________________________________
+
+*   What are various cache eviction policies ?
+
+>>  Cache eviction policies determine how data is removed from the cache when the cache reaches its maximum capacity. 
+
+    (1) Least Recently Used (LRU):
+        
+        Removes the least recently accessed items first.
+
+        How It Works: 
+        
+            - Keeps track of usage order. 
+            - When space is needed, the item that hasn’t been accessed for the longest time is evicted.
+
+    (2) Least Frequently Used (LFU):
+        
+        Removes items that are accessed the least number of times.
+        
+        How It Works: 
+        
+            - Maintains a counter for each cached item. 
+            - Items with the lowest access frequency are evicted first.
+
+    (3) Time-To-Live (TTL):
+
+        Items are evicted after a predefined time period, regardless of access frequency or recency.
+
+        How It Works: 
+        
+            - Each cached item is assigned a TTL. 
+            - When the TTL expires, the item is removed.
+            - Might evict useful data prematurely, leading to cache misses.
+
+________________________________________________________________________________________________________________________
+
+*   Who handles routing in a distributed cache 
+
+>>  
+
+________________________________________________________________________________________________________________________
+
+*   

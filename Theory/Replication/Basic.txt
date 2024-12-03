@@ -28,3 +28,126 @@
             - Risk of data loss if the primary fails before replication completes.
 
 ________________________________________________________________________________________________________________________
+
+*   How are requests from multiple application servers routed to distributed systems (e.g., cache, database, message 
+    queues)?
+
+>>  (1) Client-Side library: 
+        
+        In this approach, each application server is responsible for implementing consistent hashing and routing 
+        requests to the correct node of the cluster.
+
+        How It Works:
+            
+            Each application server maintains knowledge of the cluster topology, including the list of nodes and their 
+            responsibilities.
+
+            When a request arrives, the application server computes a hash value based on the request metadata 
+            (e.g., user ID, geo-location).
+
+            The hash is used to determine which node is responsible for that request by referring to a consistent 
+            hashing algorithm.
+
+        Advantages:
+            
+            (a) Low Latency: 
+            
+                Routing happens directly within the application, which avoids an additional hop or latency due to 
+                a dedicated routing server.
+
+            (b) Simpler Architecture: 
+            
+                The application server handles routing, so there's no need for an additional infrastructure component.
+
+            (c) Fault Tolerant: 
+            
+                Since each application server handles consistent hashing, the load of routing requests is distributed
+                across all servers, avoiding a central point of failure.
+        
+        Drawbacks:
+            
+            (a) Cluster Awareness: 
+                
+                Each application server must be aware of the entire cache cluster's topology, which increases complexity,
+                especially as the cluster size changes.
+
+            (b) Reconfiguration Overhead: 
+            
+                If the cache cluster grows or shrinks, each application server needs to update its internal consistent 
+                hashing logic to accommodate the new nodes.
+
+    (2) Dedicated Routing Server:
+
+        In this approach, a dedicated routing layer or middleware handles the consistent hashing and routes requests to 
+        the appropriate node. This could be implemented via a cluster manager.
+
+        How It Works:
+
+            The application server sends the cache request to the dedicated routing server.
+
+            The routing server is responsible for determining which node should handle the request and forwards the 
+            request to the appropriate node based on the algorithm like consistent hashing.
+
+        Advantages:
+            
+            (a) Centralized Management: 
+            
+                The routing logic is centralized in one component, making it easier to manage changes to the cluster
+                (e.g., adding/removing nodes) without needing to modify every application server.
+
+            (b) Dynamic Reconfiguration: 
+            
+                When the cache cluster changes (e.g., nodes are added or removed), the routing server can handle the 
+                updates dynamically, reducing the complexity for individual application servers.
+        
+        Drawbacks:
+        
+            (a) Single Point of Failure: 
+            
+                If the routing server goes down, the entire cache routing mechanism can fail.
+
+            (b) Latency Overhead: 
+            
+                Introducing an additional hop (the routing server) adds some latency to each request.
+
+    (3) Hybrid Approach (Application Servers with a Centralized Configuration):
+
+        In some architectures, a hybrid approach is used, where application servers implement consistent hashing locally 
+        but also consult a centralized configuration service for node information.
+
+        How It Works:
+
+            Application Servers handle most of the routing logic by calculating hashes and determining node assignments.
+            
+            However, in case of cluster changes (e.g., nodes added or removed), application servers may consult a 
+            centralized service to get the updated mapping of nodes.
+
+            The centralized service might be responsible for managing node metadata, cluster health, and topology changes.
+        
+        Advantages:
+            
+            (a) Flexibility: 
+            
+                Application servers can handle local routing for better performance, but a centralized service ensures 
+                that cluster topology is consistent and updated.
+
+            (b) Fault Tolerance: 
+                    
+                    The application servers can continue routing based on the information they have, but the 
+                    centralized service can ensure the topology is up-to-date and consistent.
+
+        Drawbacks:
+            
+            (a) Complexity: 
+                
+                Introducing a hybrid approach adds complexity to the architecture, requiring both application-side logic
+                and centralized cluster management.
+            
+            (b) Synchronization Overhead: 
+                
+                The application servers and centralized service need to synchronize to ensure that they have the latest 
+                node information, especially during cluster reconfigurations.
+
+________________________________________________________________________________________________________________________
+
+
