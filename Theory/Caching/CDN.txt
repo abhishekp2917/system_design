@@ -1,0 +1,70 @@
+*   What is a CDN (Content Delivery Network) ?
+
+>>  A Content Delivery Network (CDN) is a globally distributed network of servers designed to deliver web content, such 
+    as images, videos, JavaScript, CSS, and HTML, more efficiently and quickly to users.
+
+    There are called Edge Servers or Points of Presence because geographically they are located closer to the end user which 
+    reduces network latency. 
+
+    Key Features of a CDN:
+        
+        Content Caching:
+
+            - Stores copies of static assets like images, stylesheets, and scripts at multiple locations.
+            - Reduces load on the origin server.
+
+        Geographical Distribution:
+
+            - CDNs are located worldwide to serve users in their regions.
+            - Minimizes latency by reducing the physical distance between users and servers (CDNs).
+            
+        Dynamic and Static Content Delivery:
+
+            - Primarily serves static content like images or videos.
+            - Some advanced CDNs can handle dynamic content delivery using caching or real-time optimization.
+
+    How Does a CDN Work:
+        
+        (1) User Request:
+            
+            - A user makes a request (e.g., loading a webpage or streaming a video).
+
+        (2) Nearest Edge Server:
+            
+            - The CDN routes the request to the nearest edge server based on the user’s geographical location.
+
+        (3) Cache Check:
+            
+            - The edge server checks if it has the requested content cached.
+
+        (4) Cache Hit: 
+        
+            - Content is served directly.
+        
+        (5) Cache Miss: 
+        
+            - The edge server retrieves the content from the origin server and caches it for future requests.
+
+        (6) Content Delivery:
+            
+            - The edge server delivers the requested content to the user.
+
+    Benefits:
+        
+        (1) Improved Performance:
+
+            - Faster load times by reducing latency through geographically distributed servers.
+        
+        (2) Scalability:
+
+            - Handles large spikes in traffic without overwhelming the origin server.
+        
+        (3) Reliability:
+
+            - Redundant servers ensure that content is available even if one server goes offline.
+
+        (4) Cost Efficiency:
+
+            - Reduces bandwidth costs by offloading traffic from the origin server.
+
+________________________________________________________________________________________________________________________
