@@ -1,6 +1,116 @@
 *   What is Load Balancing ?
 
->>  
+>>  Load balancing is the process of distributing incoming network traffic across multiple servers or resources to 
+    ensure no single server is overwhelmed. 
+    
+    It enhances the performance, availability, and reliability of applications by spreading the workload evenly.
+
+    How Load Balancing Works:
+        
+        (1) Client Request:
+            
+            - Users make a request (e.g., to a website or API).
+        
+        (2) Load Balancer:
+            
+            - The load balancer receives the request.
+        
+        (3) Server Assignment:
+            
+            - The load balancer decides which backend server or resource to forward the request to based on the chosen 
+              balancing algorithm.
+
+        (4) Response Delivery:
+            
+            - The selected server processes the request and sends the response back to the client (often routed through 
+              the load balancer).
+
+    Benefits:
+        
+        (1) High Availability:
+            
+            - Ensures application uptime even if one or more servers fail.
+        
+        (2) Scalability:
+            
+            - Distributes traffic efficiently as servers are added or removed.
+
+        (3) Improved Performance:
+            
+            - Reduces latency and optimizes resource usage.
+
+        (4) Fault Tolerance:
+            
+            - Automatically reroutes traffic to healthy servers during outages.
+
+    Drawbacks:
+
+        (1) Complexity:
+            
+            - Adds architectural complexity to the system.
+        
+        (2) Latency:
+            
+            - Introduces an additional hop, which may impact ultra-low-latency systems.
+
+        (3) Single Point of Failure:
+            
+            - The load balancer itself can become a bottleneck if not properly set up (e.g., without redundancy).
+        
+        (4) Maintenance:
+            
+            - Requires monitoring and updating to ensure optimal performance.
+
+________________________________________________________________________________________________________________________
+
+*   What are common load balancing methods ?
+
+>>  (1) Round Robin:
+
+        - Distributes requests sequentially among servers.
+        - Pros: Simple implementation.
+        - Cons: Doesn’t account for server load or performance differences.
+
+    (2) Least Connections:
+
+        - Routes requests to the server with the fewest active connections.
+        - Pros: Efficient for dynamic traffic.
+        - Cons: May not consider server processing capacity.
+    
+    (3) Least Response Time:
+
+        - Sends requests to the server with the fastest response time.
+        - Pros: Good for real-time systems.
+        - Cons: Requires continuous health monitoring.
+
+    (4) Weighted Load Balancing:
+
+        - Assigns a weight to each server, routing more requests to higher-capacity servers.
+        - Pros: Handles uneven server capabilities.
+        - Cons: Requires manual configuration and updates.
+
+    (5) Consistent Hashing:
+
+        - Servers are assigned positions in the hash space and requests are hashed and routed to the nearest server clockwise.
+        - Pros: Adding or removing servers affects only a small portion of keys, reducing cache invalidation.
+        - Cons: Performance depends on the quality of the hash function used.
+
+________________________________________________________________________________________________________________________
+
+*   How to prevent single point of failure of load balancer ?
+
+>>  (1) Multiple load balancer (Active-Active) Configuration:
+
+        - Multiple load balancers operate simultaneously, sharing the traffic load.
+        - If one fails, others continue handling requests seamlessly.
+        - Benefit: Maximizes performance and redundancy.
+        - Example: DNS-based load balancing distributes traffic among multiple load balancers.
+
+    (2) Multiple load balancer (Active-Passive) Configuration:
+
+        - A primary load balancer handles traffic, while a backup remains on standby.
+        - The backup takes over if the primary fails (using health checks).
+        - Benefit: Simpler than active-active, with reduced resource usage.
 
 ________________________________________________________________________________________________________________________
 
