@@ -37,6 +37,170 @@
 
 ________________________________________________________________________________________________________________________
 
-*   What are various Consistency Model ?
+*   What is Two-Phase Commit ?
 
->>  
+>>  The Two-Phase Commit (2PC) is a protocol used in distributed systems to ensure that all participants in a distributed 
+    transaction either commit the transaction successfully or roll it back entirely. 
+    
+    It is often used in systems where consistency is critical, such as financial systems.
+
+    How Two-Phase Commit works:
+
+        It involves a coordinator (managing the transaction) and participants (nodes or systems involved in the transaction).
+
+        (1) Phase 1: Prepare Phase
+
+            (a) Coordinator Sends Prepare Request:
+                
+                - The coordinator sends a PREPARE message to all participants, asking if they are ready to commit the transaction.
+
+            (b) Participants Respond:
+                
+                - Each participant checks if it can commit the transaction:
+                - Verifies constraints (e.g., locks, disk space, integrity checks).
+                - Records the transaction in a log (for recovery purposes).
+                - If a participant is ready, it sends a YES (vote to commit) response to the coordinator.
+                - If it cannot commit, it sends a NO (vote to abort).
+
+        (2) Phase 2: Commit/Abort Phase
+            
+            Coordinator Decides:
+
+                - If all participants vote YES, the coordinator sends a COMMIT message.
+                - If any participant votes NO, the coordinator sends an ABORT message.
+            
+            Participants Execute Decision:
+
+                - On receiving a COMMIT, participants finalize the transaction and release any resources (e.g., locks).
+                - On receiving an ABORT, participants roll back the transaction to its pre-transaction state.
+            
+            Acknowledgment:
+
+                - Participants send an acknowledgment (ACK) to the coordinator once they finish their action (commit or abort).
+                - The coordinator completes the transaction when all acknowledgments are received.
+    
+    Key Guarantees:
+
+        (1) Atomicity: Either all participants commit, or none do.
+        (2) Durability: All changes are recorded in logs to ensure recovery in case of failures.
+    
+    Advantages:
+
+        (1) Ensures atomicity and consistency across distributed systems if there is no network partition.
+        (3) Simple and well-defined protocol.
+    
+    Disadvantages:
+
+        (1) Blocking: 
+
+            - If the coordinator crashes after the PREPARE phase but before sending a COMMIT/ABORT, participants may 
+              remain in a blocked state, unable to release resources.
+
+        (2) High Latency: 
+        
+            - Multiple communication steps between the coordinator and participants can make 2PC slow for high-throughput 
+              systems.
+
+        (3) Single Point of Failure: 
+        
+            - The coordinator is a single point of failure, and its crash can disrupt the transaction until recovery is 
+              performed.
+    
+    Example:
+
+        Imagine a banking system where you transfer $100 from Account A (in Database X) to Account B (in Database Y).
+
+        (1) Phase 1: Prepare Phase
+
+            - Coordinator asks both databases to prepare for the transaction.
+            - Database X verifies that Account A has sufficient funds and locks $100 for transfer.
+            - Database Y prepares to credit $100 to Account B.
+            - Both databases reply YES to the coordinator.
+        
+        (2) Commit Phase:
+
+            - Coordinator sends a COMMIT to both databases.
+            - Database X deducts $100 from Account A and releases the lock.
+            - Database Y credits $100 to Account B.
+            - Both send ACK to the coordinator.
+
+________________________________________________________________________________________________________________________
+
+*   What is Three-Phase Commmit ?
+
+>>  The Three-Phase Commit (3PC) protocol is an extension of the Two-Phase Commit (2PC) protocol designed to address 
+    some of its drawbacks, particularly the blocking issue. 
+    
+    3PC introduces an additional phase to reduce the chance of participants remaining in an uncertain state if the 
+    coordinator fails.
+
+    How Three-Phase Commmit works:
+        
+        3PC involves a coordinator and multiple participants in a distributed transaction. 
+        It divides the decision-making process into three distinct phases to improve fault tolerance and ensure atomicity.
+
+        (1) Phase 1: Prepare Phase (Same as 2PC)
+
+            Coordinator Sends Prepare Request:
+                
+                - The coordinator sends a PREPARE message to all participants, asking if they are ready to commit the transaction.
+
+            Participants Respond:
+                
+                - Each participant checks if it can commit the transaction:
+                - Verifies constraints (e.g., locks, disk space, integrity checks).
+                - Records the transaction in a log (for recovery purposes).
+                - If a participant is ready, it sends a YES (vote to commit) response to the coordinator.
+                - If it cannot commit, it sends a NO (vote to abort).
+            
+        (2) Phase 2: Pre-Commit Phase (New Phase)
+            
+            This phase ensures participants are synchronized before the final decision.
+
+            Coordinator Decides:
+
+                - If all participants vote YES in the Prepare Phase, the coordinator sends a PRE_COMMIT message.
+                - If any participant votes NO, the coordinator sends an ABORT message.
+
+            Participants acknowledge:
+
+                - Participants acknowledge the PRE_COMMIT message and enter into prepared-to-commit state (not yet 
+                  committed but ready).
+            
+        (3) Phase 3: Commit Phase
+            
+            Coordinator Decides:
+
+                - If the coordinator receives acknowledgments for the PRE_COMMIT message from all participants, the 
+                  coordinator sends a COMMIT message.
+                - If the coordinator does not receive acknowledgments (e.g., due to participant failure), the coordinator 
+                  can abort the transaction or retry.
+
+            Participants Execute Decision:
+
+                - Participants finalize the transaction, release resources, and acknowledge the commit.
+
+    Advantages:
+
+        (1) Non-Blocking:
+            
+            - Participants do not remain in an uncertain state for long because they can independently decide to abort if no response is received from the coordinator.
+
+        (2) Consistency and Atomicity:
+            - Guarantees the transaction is either fully committed or fully aborted across all nodes.
+
+    Disadvantages:
+
+        (1) Complexity:
+            
+            - More phases mean more communication overhead and a more complicated implementation compared to 2PC.
+
+        (2) Higher Latency:
+            
+            - The additional phase increases the time required to complete the transaction, making it slower.
+
+        (3) Single Point of Failure:
+            
+            - The coordinator is still a single point of failure, though the protocol minimizes blocking for participants.
+            
+________________________________________________________________________________________________________________________
