@@ -1,0 +1,232 @@
+*   What is CRDTs (Conflict-free Replicated Data Types) ?
+
+>>  CRDTs are data structures designed for distributed systems to ensure eventual consistency, when multiple nodes 
+    handle conflicting updates. 
+    
+    Instead of overwriting data, CRDTs resolve conflicts by merging changes into a single consistent value.
+
+    These data structures work best for aggregatable data, such as likes, comments, or shopping lists, where merging 
+    multiple values is meaningful and preserves intent. 
+    
+    However, they are not suitable for non-aggregatable data, like passwords, where only a single definitive value is 
+    valid, and merging multiple conflicting updates doesn’t make sense.
+
+    Types of CRDTs:
+
+        CRDTs are broadly classified into two categories based on their operation model:
+
+        (1) State-based CRDTs (Convergent Replicated Data Types):
+            
+            - Each replica maintains a state. To synchronize, replicas send their state to others, which then merge it 
+              with their own state using a merge function.
+
+            The merge function must be:
+                
+                (a) Commutative: The order of application doesn't matter.
+                (b) Associative: Grouping of merges doesn't matter.
+                (c) Idempotent: Applying the same state multiple times doesn’t change the result.
+            
+            Example CRDTs:
+
+                (a) G-Counter (Grow-only Counter):
+                    
+                    - Only increment operations are allowed.
+                    - Each replica maintains a counter; the merged state is the sum of all replicas.
+                
+                (b) PN-Counter (Positive-Negative Counter):
+                    
+                    - Supports both increments and decrements by maintaining two G-Counters: one for increments and 
+                      one for decrements.
+                    - The final value is the difference between the two.
+
+        (2) Operation-based CRDTs (Commutative Replicated Data Types):
+
+            - Replicas propagate only the operations (not the full state) they perform.
+            - Operations must be commutative and causally ordered to ensure that they can be applied in any order 
+              without conflicts.
+
+            Example CRDTs:
+
+            (a) Last-Write-Wins Register (LWW-Register):
+                
+                - Each write operation is timestamped. 
+                - The value with the latest timestamp (version clocks) is considered the current value.
+
+            (b) Grow-only Set (G-Set):
+                
+                - Only additions are allowed. 
+                - The merged set is the union of all individual sets.
+            
+            (c) Add-Wins Set (AW-Set):
+                
+                - Supports both additions and removals. 
+                - Additions "win" over removals in case of concurrent updates.
+
+    Advantages:
+        
+        - No need for custom conflict-resolution logic, as CRDTs ensure convergence automatically.
+        - Perfect for systems without a central coordinator, reducing bottlenecks and single points of failure.
+
+    Disadvantages:
+        
+        - State-based CRDTs require storing and transmitting the full state, which can be large.
+        - Operation-based CRDTs require reliably propagating all operations.
+        - Not suitable for non-aggregatable data like passwords.
+
+________________________________________________________________________________________________________________________
+
+*   Explain G-Counter (Grow-only Counter) with an example ?
+
+>>  let's take an example of counting a Post's Likes in a Distributed System.
+    
+    Imagine a distributed social media application with three servers: A, B, and C, each maintaining a replica of the 
+    "likes" counter for a post. 
+    
+    Users can "like" the post on any server, and each server updates its local counter independently.
+
+        (1) Step 1: Initialization
+
+            Each server starts with its local counter initialized to zero:
+
+                [A:	0]
+                [B:	0]
+                [C:	0]
+
+        (2) Step 2: Users Like the Post
+
+            - On Server A, 3 users like the post.
+            - On Server B, 2 users like the post.
+            - On Server C, 4 users like the post.
+
+            - Server Local Counter
+                
+                [A:	3]
+                [B:	2]
+                [C:	4]
+
+        (3) Step 3: Synchronization (Merging States)
+            
+            - Now, servers synchronize their states. 
+            - Each server sends its local counter to the others, and they merge the states by taking the 
+            maximum value for each replica.
+
+            - Let’s represent the counters as vectors [A, B, C] where each position represents the counter 
+            at that server.
+
+                (a) Initial states:
+
+                    A: [3, 0, 0]
+                    B: [0, 2, 0]
+                    C: [0, 0, 4]
+
+                (b) After merging (take the maximum value at each position):
+
+                    - Merged state: [3, 2, 4]
+                    - Each server now updates its counter to the sum of the merged vector:
+                    - Total likes = 3 + 2 + 4 = 9
+                    
+                    - Server Final Local Counter
+                        
+                        [A:	9]
+                        [B:	9]
+                        [C:	9]
+   
+
+    CRDT Properties in This Example
+        
+        (1) Commutativity:
+            
+            - Merging [3, 2, 4] and [3, 2, 6] gives the same result as merging [3, 2, 6] and [3, 2, 4].
+
+        (2) Associativity:
+            
+            - Merging ([3, 2, 4] + [3, 2, 6]) + [3, 2, 0] gives the same result as merging [3, 2, 4] + ([3, 2, 6] + [3, 2, 0]).
+
+        (3) Idempotency:
+            
+            - Merging [3, 2, 4] with itself doesn’t change the state.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Add-Wins Set that uses vector clocks for causality with an example ?
+
+>>  Imagine a distributed system where multiple users maintain a shared shopping list. 
+
+    Users can independently add or remove items from the list on different nodes, and these updates are synchronized 
+    periodically.
+
+        (1) Step 1: Initialization
+            
+            - Each node starts with an empty Add-Wins Set and a vector clock initialized to zero for all nodes.
+            _________________________________________________________________
+            |Node       Add Set         Remove Set          Vector Clock    |
+            |_______________________________________________________________|
+            |A	          {}	            {}                 [0, 0]       |
+            |B	          {}     	        {}	               [0, 0]       |
+            |_______________________________________________________________|
+        
+        (2) Step 2: Local Updates
+            
+            (a) Node A adds "Tag1":
+
+                - Increment Node A's counter in the vector clock: [1, 0].
+                - Add ("Tag1", [1, 0]) to the Add Set.
+            
+            (b) Node B adds "Tag2":
+
+                - Increment Node B's counter in the vector clock: [0, 1].
+                - Add ("Tag2", [0, 1]) to the Add Set.
+            
+            (c) Node A removes "Tag1":
+
+                - Increment Node A's counter: [2, 0].
+                - Add ("Tag1", [2, 0]) to the Remove Set.
+
+            _____________________________________________________________________
+            |Node       Add Set             Remove Set          Vector Clock    |
+            |___________________________________________________________________|
+            |A	    {("Tag1", [1, 0])}	 {("Tag1", [2, 0])}        [0, 0]       |
+            |B	    {("Tag2", [0, 1])}     	    {}	               [0, 0]       |
+            |___________________________________________________________________|
+
+        (3) Step 3: Synchronizing Operations
+
+            - Nodes exchange their Add Set, Remove Set, and vector clocks during synchronization.
+
+            (a) Node A sends:
+
+                - Add Set: {("Tag1", [1, 0])}
+                - Remove Set: {("Tag1", [2, 0])}
+                - Vector Clock: [2, 0]
+
+            (b) Node B sends:
+
+                - Add Set: {("Tag2", [0, 1])}
+                - Remove Set: {}
+                - Vector Clock: [0, 1]
+
+        (4) Step 4: Resolving Conflicts
+
+            - Each node integrates the received operations into its local state. 
+            - To determine whether an element is in the final set, they check if it exists in the Add Set but not 
+              causally dominated by any entry in the Remove Set.
+            - Use vector clock comparison to establish causality.
+        
+    Rules for Vector Clock Comparison:
+            
+        (1) Causality: 
+            
+            - Vector clock V1 causally precedes V2 if all components of V1 are ≤ the corresponding components in V2, 
+                and at least one component V1 is strictly < V2.
+        
+        (2) Concurrent: 
+        
+            - If neither vector clock causally precedes the other, the updates are concurrent.
+
+    Final set at each node:
+
+        Node A : {"Tag2"}
+        Node B : {"Tag2"}
+
+________________________________________________________________________________________________________________________
+
