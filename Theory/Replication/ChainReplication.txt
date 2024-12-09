@@ -1,0 +1,151 @@
+*   What is Chain Replication ?
+
+>>  Chain replication is a distributed replication protocol designed to ensure high availability, fault tolerance, and 
+    strong consistency in distributed storage systems.
+
+    Key Features of Chain Replication:
+
+        - Nodes are arranged in a chain (e.g., Node1 → Node2 → Node3).
+        - Data flows in one direction through the chain.
+        - The first node in the chain is called the head which handles the write requests.
+        - The last node in the chain is called the tail which handles the read requests.
+
+    How It Works:
+
+        (1) Write Operation:
+
+            - The client sends a write request to the head node.
+            - The head processes the write and forwards it to the next node in the chain.
+            - This propagation continues until the write reaches the tail node.
+            - Once the tail confirms the write, an acknowledgment is sent back to the previous nodes sequentially, 
+              eventually reaching the client through head.
+
+        (2) Read Operation:
+
+            - Read requests are sent to the tail node.
+            - Since the tail always has the latest committed data, it serves the read request immediately.
+            - This ensures that clients read only the most recent consistent state.
+
+    Advantages:
+
+        (1) Strong Consistency: 
+            
+            - Tail-based reads ensure consistent results.
+
+        (2) Fault Tolerance: 
+        
+            - Chain topology supports reconfiguration upon node failures.
+
+        (3) Simplified Protocol: 
+        
+            - Sequential write propagation reduces concurrency control complexity.
+
+    Disadvantages:
+
+        (1) Latency: 
+        
+            - Writes are delayed by the propagation time through the chain because the client would receive ACK once all 
+              the nodes are in sync.
+        
+        (2) Bottlenecks:
+                
+            - The head can become a bottleneck for writes.
+            - The tail can become a bottleneck for reads.
+
+        (3) Scalability: 
+        
+            - Adding nodes increases write latency due to the longer chain.
+
+________________________________________________________________________________________________________________________
+
+*   What is CRAQ (Chain Replication with Applied Queries) ?
+
+>>  CRAQ is an extension of the Chain Replication protocol designed to improve read throughput by allowing intermediate 
+    nodes as well to handle reads while maintaining strong consistency. 
+
+    Each node in Chain stores:
+        
+        (1) Versioned data: A version number is assigned to each piece of data.
+        
+        (2) Dirty/Clean flag:
+            
+            - Dirty: Indicates that the data is part of a write in progress and hasn't been fully synchronized across the chain.
+            - Clean: Indicates that the write has been committed and synchronized across all nodes.
+
+    Problem CRAQ Solves:
+
+        (1) Read Bottleneck:
+
+            - All reads are routed to the tail node, leading to a single point of load for read operations.
+        
+        (2) Underutilized Intermediate Nodes:
+
+            - Intermediate nodes are primarily used to relay writes, leaving them idle for read operations.
+    
+    CRAQ solves these issues by:
+
+        - Allowing intermediate nodes to serve read requests under certain conditions.
+        - Adding a versioning mechanism to ensure consistency of reads from intermediate nodes.
+
+    How CRAQ works:
+
+        CRAQ introduces versioning and dirty/clean flags to enhance the traditional chain replication protocol.
+
+        (1) Write Operation:
+
+            - The client sends a write request to the head node.
+            
+            - The head processes the write, updates the data, and marks it as dirty with a new version number.
+            
+            - The updated data propagates sequentially through the chain.
+            
+            - Each intermediate node updates its copy and marks it as dirty.
+            
+            - When the tail node receives the write, it marks the data as clean.
+            
+            - The tail sends an acknowledgment back through the chain to the head.
+            
+            - Once all nodes receive the acknowledgment, the data gets mark as clean at each node.
+
+        (2) Read Operation
+
+            - A client can send a read request to any node (head, intermediate, or tail).
+            
+            - The node checks:    
+            
+                (a) Version number: If the data is the latest version.
+                (b) Clean flag: If the data has been fully synchronized.
+            
+            - If the data is clean and up-to-date, the node serves the read.
+            - If the data is dirty or outdated, the read is forwarded to the tail node.
+    
+    Advantages:
+
+        (1) Improved Read Throughput:
+
+            - Reads are distributed across all nodes (not just the tail), reducing the load on the tail.
+
+        (2) Balanced Resource Utilization:
+
+            - Intermediate nodes are actively used for read operations, ensuring better utilization of resources.
+
+        (3) Strong Consistency:
+
+            - By using versioning and the dirty/clean flag, CRAQ ensures that reads always return consistent data.
+
+        (4) Fault Tolerance:
+
+            - Like traditional chain replication, CRAQ supports reconfiguration to handle node failures.
+
+    Disadvantages:
+
+        (1) Increased Complexity:
+
+            - The versioning mechanism and dirty/clean flags add complexity to the implementation and maintenance.
+
+        (2) Inconsistent Performance:
+
+            - If intermediate node has dirty data then it would still make the tail node overwhelmed.
+
+    
+________________________________________________________________________________________________________________________
