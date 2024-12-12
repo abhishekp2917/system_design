@@ -1,0 +1,163 @@
+*   What are various issues that may arise due to concurrent access to DB ?
+
+>>  (1) Dirty Reads:
+
+        - A dirty read occurs when a transaction reads data that has been modified by another transaction but not yet 
+          committed. 
+        
+        - If the modifying transaction rolls back or fails, the data read by the first transaction becomes invalid, leading 
+          to inconsistencies.
+
+        Example:
+
+            (a) Initial State:
+
+                - Account A has a balance of $1,000. 
+
+            (b) Transaction A:
+
+                - Updates the balance of Account A to $500 in memory but does not commit the change yet.
+            
+            (c) Transaction B:
+
+                - Reads the updated balance ($500) from Account A, believing it is correct.
+                - Uses this value in its calculations or displays it to the user.
+            
+            (d) Transaction A:
+
+                - Rolls back due to some issue, restoring the balance of Account A to $1,000.
+            
+            (e) Transaction B:
+
+                - Now has an incorrect value ($500) for its operations because it read uncommitted data.
+
+    (2) Dirty Writes:
+
+        - A dirty write occurs when one transaction modifies data that another transaction has also modified but not yet 
+          committed. 
+        
+        - If either transaction is rolled back, the changes made by the other transaction can become invalid, leading to 
+          inconsistencies in the database.
+
+        Example:
+
+            - Two users attempting to update the balance of the same bank account 'A' concurrently which has a balance 
+              of $1,000.
+
+            (a) Transaction A:
+
+                - Begins and subtracts $500 from Account A (temporary balance: $500) but does not commit.
+            
+            (b) Transaction B:
+
+                - Begins and attempts to add $200 to Account A.
+                - Writes the updated balance as $700, overwriting Transaction A's changes.
+
+            (c) Transaction A:
+
+                - Rolls back its transaction, leaving the balance at $700 instead of $1,200.
+                - The database ends up with a corrupted state, as the changes were based on uncommitted data.
+
+    (3) Non-Repeatable Reads:
+
+        - A non-repeatable read occurs when a transaction reads the same data twice and gets different results because 
+          another transaction modified or deleted the data in between the two reads. 
+        
+        - This inconsistency is caused by concurrent transactions and can lead to logical errors in applications.
+
+        Example:
+
+            - Two concurrent transactions are accessing and modifying a database that stores a product's price.
+
+            (a) Initial State:
+
+                - Product P has a price of $100.
+            
+            (b) Transaction A:
+
+                - Starts and reads the price of P as $100.
+            
+            (c) Transaction B:
+
+                - Starts, updates the price of P to $120, and commits.
+
+            (d) Transaction A:
+
+                - Reads the price of P again. But this time price is $120.
+            
+            - The price of P read by Transaction A is different in the second read, leading to a non-repeatable read.
+
+    (4) Phantom Reads:
+
+        - A phantom read happens when a transaction runs the same range query twice, but another transaction in between these 
+          execution adds or removes rows that match the query, causing the result set to change.
+
+        Example:
+
+            (a) Initial State:
+
+                - The Accounts table contains the following rows:
+                    _________________________________
+                    |   Account ID  |   Balance     |
+                    |_______________|_______________|
+                    |   1	        |   15,000      |
+                    |   2	        |   12,000      |
+                    |   3           |   14,000      |
+                    |_______________|_______________|
+
+            (b) Transaction A:
+
+                - Starts and queries for accounts with a balance greater than $10,000.
+                - The query result in Accounts 1, 2 and 3.
+
+            (c) Transaction B:
+
+                - Updates the Balance of Account 1 to $9,000, and commits.
+                    _________________________________
+                    |   Account ID  |   Balance     |
+                    |_______________|_______________|
+                    |   1	        |   9,000       |
+                    |   2	        |   12,000      |
+                    |   3           |   14,000      |
+                    |_______________|_______________|
+
+            (d) Transaction A:
+
+                - Queries again for accounts with a balance greater than $10,000.
+                - The same query this time returns only Accounts 2 and 3.
+        
+    (5) Lost Updates:
+
+        - A lost update occurs when two or more transactions read the same data, make modifications based on the read 
+          value, and then update the data, causing one of the updates to be overwritten without ever being acknowledged 
+          or preserved. 
+          
+        - This happens because the updates are not isolated, and the transactions inadvertently overwrite each other’s 
+          changes.
+
+        Example:
+
+            (a) Initial State:
+
+                - Product stock: 100 units.
+
+            (b) Transaction A:
+
+                - Reads the stock value: 100.
+                - Decreases stock by 20 units (intended update: stock = 80).
+            
+            (c) Transaction B:
+
+                - Reads the same stock value: 100.
+                - Decreases stock by 10 units (intended update: stock = 90).
+
+            (d) Transaction A:
+
+                - Updates stock to 80 and commits.
+
+            (c) Transaction B:
+
+                - Updates stock to 90 and commits.
+                - The final stock is 90, and Transaction A's update is lost.
+
+________________________________________________________________________________________________________________________
