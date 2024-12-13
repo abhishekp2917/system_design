@@ -323,3 +323,79 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________________________________________________
 
+*   What is Multiversion Concurrency Control (MVCC) ?
+
+>>  MVCC uses data versioning (Snapshot Isolation) to ensure consistency and enable high concurrency. 
+
+    How Reads Work in MVCC:
+        
+        (1) Transaction Start:
+
+            - When a transaction begins, it is assigned a start timestamp or transaction ID.
+            - This timestamp is used to determine the visible version of each record.
+
+        (2) Reading a Record:
+
+            - The transaction looks for the latest version of the record that was committed before its start timestamp.
+            - If the transaction encounters a version created by another transaction that has not yet committed, 
+              it ignores it.
+
+        (3) Consistency:
+
+            - Even if another transaction modifies or deletes the record after the read starts, the current transaction 
+              continues to see the version from its snapshot.
+
+    How Writes Work in MVCC:
+
+        (1) Transaction Start:
+
+            - The transaction is assigned a start timestamp.
+
+        (2) Modifying a Record:
+
+            - When a transaction updates or deletes a record, it creates a new version of the record.
+            - The new version is marked with the transaction’s start timestamp, indicating when it was created.
+            - The new version is invisible to other transactions until the transaction commits.
+        
+        (3) Committing a Transaction:
+
+            - When the transaction commits, the new version becomes the latest committed version.
+            - Older versions are retained for other active transactions that started before this one committed.
+
+        (4) Conflict Resolution:
+
+            - During the commit phase, MVCC checks whether the data modified by the transaction has been changed by other 
+              committed transactions.
+
+            - If a conflict is detected, the transaction fails and may be retried.
+
+    Advantages:
+
+        (1) High Concurrency:
+
+            - Allows multiple transactions to access the same data simultaneously without  being blocked by lock.
+
+        (2) Read Consistency:
+
+            - Transactions see a consistent snapshot of the database, eliminating issues like dirty reads.
+        
+        (3) Non-Blocking Reads:
+
+            - Transactions can read data without being blocked by writes.
+
+    Disadvantages:
+
+        (1) Storage Overhead:
+
+            - Keeping multiple versions of data increases storage requirements.
+        
+        (2) Complexity:
+
+            - MVCC implementations are more complex than traditional locking mechanisms.
+            - Managing and garbage-collecting old versions adds overhead.
+        
+        (3) Latency for Writes:
+
+            - Writes can be slower due to the need to create and manage new versions.
+
+________________________________________________________________________________________________________________________
