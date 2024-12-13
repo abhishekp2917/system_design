@@ -161,3 +161,165 @@
                 - The final stock is 90, and Transaction A's update is lost.
 
 ________________________________________________________________________________________________________________________
+
+*   What are various Isolation Levels ?
+
+>>  Database Isolation Levels specify the extent to which one transaction must be isolated from other transactions in 
+    the presence of concurrent transactions. 
+
+    They are crucial for maintaining data consistency in multi-user environments where concurrent transactions may occur.
+
+    (1) Read Uncommitted Isolation Level:
+
+        - In the Read Uncommitted, transactions are allowed to read uncommitted changes made by other transactions. 
+
+        - This means a transaction can see changes made by other transactions that have not been committed yet, leading 
+          to phenomena like dirty reads.
+        
+        - Concurrency issues left unsolved:
+
+            (a) Dirty Reads
+            (b) Dirty Writes
+            (c) Repeatable Reads 
+            (d) Phantom Reads 
+            (e) Lost Updates
+    
+    (2) Read Committed Isolation Level:
+
+        - In the Read Committed, transactions can only read data that has been committed by other transactions. 
+        
+        - Changes made by a transaction are not visible to other transactions until they are committed.
+
+        - Concurrency issues solved:
+
+            (a) Dirty Reads
+            (b) Dirty Writes
+        
+        - Concurrency issues left unsolved: 
+    
+            (a) Repeatable Reads 
+            (b) Phantom Reads
+            (c) Lost Updates
+
+    (3) Repeatable Read Isolation Level:
+
+        - In the Repeatable Read, once a row is read, it is locked until the transaction commits or rolls back. 
+
+        - Changes made by other transactions are not visible to the transaction until it completes.
+
+        - Concurrency issues solved:
+
+            (a) Dirty Reads
+            (b) Dirty Writes
+            (c) Repeatable Reads 
+        
+        - Concurrency issues left unsolved: 
+    
+            (a) Phantom Reads 
+            (b) Lost Updates
+
+    (4) Serializable Isolation Level:
+
+        - The Serializable isolation level ensures that transactions are executed as if they were serialized, one after 
+          another, by implementing range locks without overlapping access to shared resources.
+
+        - Performance can be very slow because transactions need to wait for locks to be released, leading to potential 
+          bottlenecks.
+
+        - Suitable for systems where strict consistency is required, like financial transactions or critical databases.
+
+        - Concurrency issues solved:
+
+            (a) Dirty Reads
+            (b) Dirty Writes
+            (c) Repeatable Reads 
+            (d) Phantom Reads 
+            (e) Lost Updates
+
+________________________________________________________________________________________________________________________
+
+*   What is Optimistic Locking ?
+
+>>  Optimistic locking assumes that conflicts between transactions are rare and instead of helding locks on the data 
+    during the transaction, it focuses on detecting and resolving conflicts only when they occur.
+
+    How It Works:
+
+        (a) Read Phase: 
+        
+            - A transaction reads the data.
+            - Instead of locking the data, it records a version number or a timestamp when the data is first read.
+
+        (b) Processing Phase: 
+        
+            - The transaction performs its operations locally without locking the data.
+
+        (c) Validation Phase: 
+        
+            - Before committing, the system compares the current version of the data in the DB with the recorded one.
+            - If they match, it means no other transaction has modified the data, and the transaction can safely commit.
+            - If they don't match, the transaction is rolled back and retried.
+
+    Advantages:
+
+        - High concurrency/performance because transactions do not block each other during execution.
+        - Reduces lock overhead, making it suitable for read-heavy workloads.
+
+    Disadvantages:
+
+        - Transactions might need to be retried multiple times if conflicts occur.
+        - Not suitable for systems with high contention and requiring strict consistency.
+
+________________________________________________________________________________________________________________________
+
+*   What is Pessimistic Locking ?
+
+>>  Pessimistic locking assumes that conflicts are likely and prevents them by locking the data as soon as it is accessed.
+
+    Locks are acquired on data (shared or exclusive) to prevent concurrent access during a transaction.
+
+    How It Works:
+        
+        (a) Read Phase: 
+        
+            - When a transaction reads data, it acquires a lock (shared or exclusive).
+
+        (b) Processing Phase: 
+        
+            - The lock prevents other transactions from modifying (or even reading, in the case of exclusive locks) the data.
+        
+        (c) Commit Phase: 
+        
+            - Once the transaction completes, the lock is released.
+
+    Advantages:
+        
+        - Suitable for critical systems requiring strict consistency (e.g., financial transactions).
+
+    Disadvantages:
+        
+        - Transactions must wait for locks to be released, reducing concurrency and performance.
+        - Circular waiting for locks can lead to deadlocks.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Shared Locks and Exclusive Locks ?
+
+>>  (1) Shared Lock:
+        
+        - Allow multiple transactions to read the same data simultaneously while the lock is held.
+        
+        - Prevents other transactions from writing to the data until the lock is released.
+        
+        - Suitable for read-heavy systems where data is read frequently but modified less often.
+
+    (2) Exclusive Lock:
+        
+        - Prevents other transactions from reading and writing to the data item until the lock is released.
+        
+        - Ensures that modifications made by one transaction are completed without interference.
+        
+        - Suitable for write-heavy systems where data updates are frequent.
+
+________________________________________________________________________________________________________________________
+
