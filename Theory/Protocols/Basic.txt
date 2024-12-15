@@ -1,0 +1,284 @@
+*   What is TCP (Transmission Control Protocol) ?
+
+>>  TCP is a connection-oriented protocol designed to provide reliable, ordered, and error-checked delivery of data 
+    between applications in a network. 
+
+    Key Features:
+
+        (1) Connection-Oriented Protocol:
+
+            - A connection is established between the sender and receiver before data transmission begins. 
+
+        (2) Reliable Delivery:
+
+            - TCP ensures that data sent from the sender is delivered to the receiver accurately. 
+            - If packets are lost, corrupted, or arrive out of order, TCP handles retransmissions and reordering.
+
+        (3) Error Checking:
+
+            - TCP uses checksums to detect corrupted packets. 
+            - If a packet is found to be corrupted, it is discarded, and the sender retransmits it.
+
+        (4) Ordered Data Transfer:
+
+            - TCP ensures that data is received in the same order in which it was sent, even if packets arrive out of 
+              sequence.
+
+        (5) Flow Control:
+
+            - TCP prevents overwhelming the receiver by using a sliding window mechanism to manage the rate of data flow.
+            - The receiver informs the sender about it's window size i.e. how much data it can accept at a time.
+            - TCP adjusts the rate of data transmission based on network congestion to prevent packet loss.
+    
+    How TCP Works:
+
+        (1) Connection Establishment (Three-Way Handshake):
+ 
+            - The client sends a SYN (Synchronize) packet to the server to initiate a connection.
+            - The server responds with a SYN-ACK (Synchronize-Acknowledgment) packet, acknowledging the client’s SYN.
+            - The client sends an ACK packet to confirm the connection.
+            - This handshake ensures both parties are ready for data transfer.
+
+        (2) Data Transmission:
+
+            - Data is divided into smaller packets (segments) containing a sequence number to ensure proper ordering.
+            - The receiver sends an ACK for each successfully received packet.
+            - If the sender doesn’t receive an acknowledgment within a timeout period, it retransmits the packet.
+
+        (3) Connection Termination:
+
+            - Either the sender or receiver can initiate termination using a FIN (Finish) packet.
+            - The other side acknowledges the FIN with an ACK.
+            - A final FIN-ACK exchange ensures both sides close the connection.
+
+    Advantages:
+
+        (1) Reliability: 
+        
+            - Guarantees delivery of data without duplication or loss.
+
+        (2) Error Handling: 
+        
+            - Automatically detects and retransmits corrupted packets.
+
+        (3) Ordering: 
+        
+            - Ensures data is received in the correct order.
+
+        (4) Flow and Congestion Control: 
+        
+            - Prevents network and receiver overload.
+
+    Disadvantages:
+
+        (1) Higher Overhead: 
+            
+            - TCP’s reliability features introduce additional latency and bandwidth usage.
+
+        (2) Slower Performance: 
+        
+            - Slower performance due to acknowledgment and retransmission mechanisms.
+
+        (3) Not Suitable for Real-Time Applications: 
+        
+            - The delay introduced by TCP makes it unsuitable for applications like live video streaming or online gaming.
+
+________________________________________________________________________________________________________________________
+
+*   What is UDP (User Datagram Protocol) ?
+
+>>  UDP is a connectionless, lightweight, and fast network protocol.
+
+    Unlike TCP, UDP does not guarantee reliable delivery, ordering, or error correction, making it suitable for 
+    applications that prioritize speed over reliability.
+
+    Key Features:
+
+        (1) Connectionless Protocol:
+
+            - No need to establish or terminate a connection before or after data transfer. 
+            - Data is simply sent in the form of datagrams.
+
+        (2) Unreliable:
+
+            - UDP does not guarantee the delivery of packets. 
+            - If packets are lost or arrive out of order, the protocol does not attempt to recover them.
+
+        (3) Lightweight:
+
+            - Minimal overhead due to the absence of features like acknowledgments, retransmissions, or flow control.
+
+        (4) Faster Transmission:
+
+            - Because it skips connection establishment, retransmission, and sequencing, UDP is faster than TCP.
+            
+        (5) No Congestion Control:
+
+            - UDP sends packets as fast as the application allows, regardless of network congestion.
+
+    How UDP Works:
+
+        (1) Sending a Datagram:
+
+            - Since UDP is connection less protocol, there is no Three-Way Handshake happen unlike TCP to establish connection. 
+            - The application provides data and a destination address to the UDP layer.
+            - UDP encapsulates the data into a datagram by adding its header (source port, destination port, length, checksum).
+            - The datagram is handed to the IP layer for delivery.
+
+        (2) Receiving a Datagram:
+
+            - The IP layer delivers the datagram to the UDP layer of the receiving host.
+            - UDP removes the header and passes the payload to the appropriate application based on the destination port.
+    
+    Advantages:
+
+        (1) Low Latency: 
+        
+            - Minimal overhead makes UDP faster than TCP.
+
+        (2) Simplicity: 
+        
+            - Easy to implement due to its lightweight design.
+
+        (3) Broadcast/Multicast Support: 
+        
+            - Suitable for scenarios where data needs to be sent to multiple recipients.
+
+        (4) Real-Time Performance: 
+            
+            - Ideal for applications requiring constant data flow, even with packet loss e.g. Live streaming.
+
+    Disadvantages:
+
+        (1) Unreliable Delivery: 
+        
+            - No acknowledgment or retransmission of lost packets.
+
+        (2) No Order Guarantee: 
+        
+            - Packets may arrive out of order.
+
+        (3) No Congestion Control: 
+        
+            - Risk of overwhelming the network if data is sent too quickly.
+
+        (4) Error Handling Responsibility: 
+        
+            - The application must handle error checking and recovery.
+
+________________________________________________________________________________________________________________________
+
+*   What are various protocols that uses TCP or UDP as underlying protocol ?
+
+>>  TCP Protocols:
+
+        (1) HTTP/HTTPS (HyperText Transfer Protocol / Secure):
+
+            - Definition: Used for web browsing and secure web traffic.
+            - Use Case: Enables users to access websites and secure web applications, supports SSL/TLS for encrypted communication.
+            - Example Products: Google Chrome, Microsoft Edge.
+
+        (2) FTP/FTPS (File Transfer Protocol / Secure):
+
+            - Definition: Used for transferring files between systems with support for secure file transfers.
+            - Use Case: Commonly used for uploading and downloading files, managing remote file systems.
+            - Example Products: FileZilla, WinSCP.
+
+        (3) SMTP/SMTPS (Simple Mail Transfer Protocol / Secure):
+
+            - Definition: Used for sending emails, with SMTPS adding security through encryption.
+            - Use Case: Essential for email communication between servers and clients, supports secure communication with STARTTLS.
+            - Example Products: Microsoft Outlook, Gmail.
+
+        (4) WebSocket:
+
+            - Definition: Provides full-duplex communication over a single TCP connection, enabling real-time applications.
+            - Use Case: Used for live chat, online gaming, real-time data updates in web applications.
+            - Example Products: Facebook Messenger, WhatsApp.
+
+        (5) RTMP/RTMPS (Real-Time Messaging Protocol / Secure):
+
+            - Definition: Used for live streaming audio and video content over TCP for control streams, with RTMPS providing encryption.
+            - Use Case: Suitable for broadcasting live events, online video streaming.
+            - Example Products: YouTube Live, Facebook Live.
+        
+        (6) HLS (HTTP Live Streaming):
+
+            - Definition: Streams audio and video content in chunks over HTTP, can use HTTP/1.1, HTTP/2, or HTTP/3.
+            - Use Case: Ideal for adaptive streaming, where video quality adjusts to network conditions.
+            - Example Products: YouTube, Netflix.
+
+        (7) DASH (Dynamic Adaptive Streaming over HTTP):
+
+            - Definition: Streams adaptive bitrate audio and video content over HTTP, supporting HTTP/1.1, HTTP/2, and HTTP/3.
+            - Use Case: Allows users to stream content efficiently over variable network conditions.
+            - Example Products: YouTube, Netflix.
+        
+        (8) AMQP/AMQPS (Advanced Message Queuing Protocol / Secure):
+
+            - Definition: Used for messaging systems, supports secure communication through AMQPS.
+            - Use Case: Commonly used in enterprise messaging systems for sending and receiving messages.
+            - Example Products: RabbitMQ.
+
+        (9) IMAP/IMAPS (Internet Message Access Protocol / Secure):
+
+            - Definition: Used for retrieving emails, with IMAPS providing encryption.
+            - Use Case: Enables access to emails stored on remote servers.
+            - Example Products: Microsoft Outlook, Gmail.
+
+        (10) Telnet:
+
+            - Definition: Provides remote command-line access to servers, typically insecure.
+            - Use Case: Allows administrators to manage systems remotely.
+        
+        (11) SSH (Secure Shell):
+
+            - Definition: Provides secure remote access and file transfers.
+            - Use Case: Used for secure remote login, command execution, and file transfers over an encrypted connection.
+            - Example Products: PuTTY, OpenSSH.
+
+    UDP Protocols:
+
+        (1) RTP (Real-time Transport Protocol):
+
+            - Definition: Transports audio and video data over IP networks, commonly used in teleconferencing.
+            - Use Case: Ensures synchronized playback of audio and video streams.
+            - Example Products: Zoom, Microsoft Teams, Skype.
+
+        (2) WebRTC (Web Real-Time Communication):
+
+            - Definition: Allows peer-to-peer communication between browsers, supporting video calls and live chats based on RTP.
+            - Use Case: Enables real-time multimedia communication without the need for additional servers.
+            - Example Products: Zoom, Microsoft Teams, Skype.
+
+        (3) DNS (Domain Name System):
+
+            - Definition: Resolves domain names to IP addresses.
+            - Use Case: Converts human-friendly domain names into machine-readable IP addresses.
+            - Example Products: Google DNS, Cloudflare DNS.
+
+        (4) DHCP (Dynamic Host Configuration Protocol):
+
+            - Definition: Assigns IP addresses to devices on a network automatically.
+            - Use Case: Ensures devices can connect to a network without manual configuration.
+            - Example Products: Windows DHCP Server, Cisco DHCP.
+            
+        (5) NTP (Network Time Protocol):
+
+            - Definition: Synchronizes time across devices on a network.
+            - Use Case: Ensures devices across a network have the same time for consistent operation.
+            - Example Products: Chrony, NTP Server, Network Time Protocol Daemon (NTPd).
+
+        (6) QUIC (Quick UDP Internet Connections):
+
+            - Definition: Provides faster web communication using UDP, used by HTTP/3.
+            - Use Case: Improves performance and latency for web applications, particularly in reducing load times.
+            - Example Products: Google Chrome, Microsoft Edge.
+
+        (7) VoIP Protocols:
+
+            - Definition: Transmit voice over IP networks using protocols like G.711, G.729, etc.
+            - Use Case: Used in voice calls and teleconferencing services (e.g., Skype, Zoom).
+            - Example Products: Skype, Google Voice, Cisco Webex.
+
+________________________________________________________________________________________________________________________
