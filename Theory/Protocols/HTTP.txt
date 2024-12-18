@@ -1,0 +1,340 @@
+*   Explain HTTP/1.0 in detail.
+
+>>  HTTP/1.0, introduced in 1996, was the first standardized version of the HyperText Transfer Protocol. 
+
+    It laid the foundation for web communication by defining how clients (like web browsers) and servers communicate 
+    over the internet.
+
+    Key Features:
+
+        (1) Stateless Protocol:
+
+            - HTTP/1.0 is stateless, meaning each request-response pair is independent.
+
+            - The server does not retain any information about previous requests from the same client.
+        
+        (2) Connection Per Request:
+
+            - For every HTTP request, a separate TCP connection is established and closed after the response is delivered.
+
+            - This leads to significant overhead, especially for web pages with multiple assets (images, CSS, JavaScript), 
+              the client needs to open new connections to the server for each resources.
+        
+        (3) Basic Request Methods:
+
+            - HTTP/1.0 supported the following methods:
+
+                (a) GET: Retrieve data from the server.
+                (b) POST: Submit data to the server for processing.
+                (c) HEAD: Retrieve only the headers of a resource, without the body.
+       
+        (4) Text-Based Communication:
+
+            - HTTP/1.0 messages are human-readable.
+
+            (a) Request Structure consists of:
+
+                (i) A request line: Includes the method, path, and HTTP version.
+                (ii) Headers: Provide additional metadata about the request.
+                (iii) An optional body: For methods like POST.
+
+                Example:
+
+                    ```
+                        GET /about.html HTTP/1.0
+
+                        Host            : www.example.com
+                        User-Agent      : Mozilla/5.0
+                        Accept          : text/html
+                    ```
+
+            (b) Response Structure consists of:
+
+                (i) A status line: Indicates the HTTP version, status code, and reason phrase.
+                (ii) Headers: Provide metadata about the response (e.g., content type, length).
+                (iii) An optional body: Contains the requested resource
+                
+                Example:
+
+                    ```
+                        HTTP/1.0 200 OK
+
+                        Date                : Fri, 15 Dec 2024 10:00:00 GMT
+                        Content-Type        : text/html
+                        Content-Length      : 137
+
+                        <html>
+                            <body>
+                                <h1>Welcome to Example!</h1>
+                            </body>
+                        </html>
+                    ```
+
+        (5) Simple Caching Mechanism:
+
+            - Basic caching was supported using headers like Expires and Last-Modified.
+
+________________________________________________________________________________________________________________________
+
+*   What are the limitations of HTTP/1.0 which got resolved in HTTP/1.1 ?
+
+>>  (1) Inefficient Connection Handling:
+
+        HTTP/1.0: 
+        
+            - Opened a new TCP connection for every request/response pair, causing high latency and overhead.
+        
+        HTTP/1.1: 
+            
+            - Introduced persistent connections by default, allowing multiple requests and responses to be sent over a 
+              single connection, reducing connection overhead.
+
+    (2) Inefficient Resource Fetching:
+
+        HTTP/1.0: 
+        
+            - Allowed only one request at a time per connection.
+    
+        HTTP/1.1: 
+        
+            - Added pipelining, enabling multiple requests to be sent without waiting for prior responses, improving throughput.
+    
+    (3) Static Content-Length Requirement:
+
+        HTTP/1.0: 
+        
+            - Required the Content-Length header for responses, which meant the server needed to know the size of the 
+              content beforehand.
+
+        HTTP/1.1: 
+        
+            - Introduced chunked transfer encoding, allowing dynamic content to be sent in chunks without knowing the 
+              total size in advance.
+
+    (4) Lack of Host Header:
+
+        HTTP/1.0: 
+        
+            - Did not include the Host header, making it impossible to host multiple domains on a single IP address.
+        
+        HTTP/1.1: 
+        
+            - Made the Host header mandatory, enabling virtual hosting and allowing multiple websites to share a single IP.
+
+    (5) Poor Bandwidth Utilization:
+
+        HTTP/1.0: 
+            
+            - Did not support compression for headers or content.
+
+        HTTP/1.1: 
+        
+            - Allowed for content negotiation and compression using Accept-Encoding and Content-Encoding headers, enabling 
+              gzip and similar mechanisms to reduce bandwidth usage.
+
+________________________________________________________________________________________________________________________
+
+*   Explain HTTP/1.1 in detail.
+
+>>  HTTP/1.1, introduced in 1997, build on HTTP/1.0 by introducing features aimed at improving performance, reducing 
+    latency, and enabling more flexible communication between clients (like browsers) and servers.
+
+    Key Features:
+    
+        (1) Persistent Connections (Keep-Alive):
+
+            - In HTTP/1.0, a new TCP connection was opened for every request-response pair, which caused significant 
+              overhead due to the cost of TCP handshakes.
+
+            - HTTP/1.1 introduces persistent connections by default, allowing multiple requests and responses to be sent 
+              over the same TCP connection. 
+
+            - This reduces the overhead of repeatedly opening and closing connections.
+        
+        (2) Pipelining:
+
+            - HTTP/1.1 allows pipelining, where a client can send multiple requests to the server without waiting for 
+              the responses to arrive in sequence.
+
+            - Though supported in HTTP/1.1, pipelining is not widely implemented due to head-of-line blocking issues.
+        
+        (3) Chunked Transfer Encoding:
+
+            - HTTP/1.1 supports chunked transfer encoding, enabling the server to send data in chunks without knowing 
+              the total content length beforehand.
+        
+            - This is especially useful for dynamically generated content.
+
+        (4) Host Header:
+
+            - HTTP/1.1 requires the Host header in requests, enabling virtual hosting.
+
+            - A single server can host multiple websites on the same IP address, and the Host header specifies which 
+              website the client is requesting:
+
+                ```
+                    GET /index.html HTTP/1.1
+                    
+                    Host            : www.example.com
+                    User-Agent      : Mozilla/5.0
+                    Accept          : text/html
+                ```
+
+        (5) Range Requests:
+
+            - HTTP/1.1 enables range requests, where clients can request specific portions of a resource. 
+            - This is useful for resuming interrupted downloads, streaming media.
+
+________________________________________________________________________________________________________________________
+
+*   What is Head-of-Line blocking issue ?
+
+>>  In HTTP/1.1, persistent connections allow multiple requests over a single TCP connection, but they are processed 
+    sequentially (FIFO order). 
+    
+    If one response is delayed (e.g., due to a slow query or large resource), it blocks all subsequent responses on the 
+    same connection. This is known as head-of-line blocking.
+
+    Example:
+
+        Let’s consider a client making 3 requests over a single TCP connection:
+
+            - Request A: Fetch a small text file (quick response).
+            - Request B: Fetch a large image file (slow response).
+            - Request C: Fetch a small CSS file (quick response).
+
+        In HTTP/1.1:
+
+            - Request A is processed first, and the server sends back the response quickly.
+            - Request B takes longer to process because the image file is large.
+            - Request C cannot be processed until the response for Request B is completely sent, even though it’s a small 
+              file and could be sent quickly.
+
+    Workarounds:
+
+        (1) Multiple TCP Connections:
+
+            - Browsers open multiple TCP connections (typically 6-8 connections per domain) to parallelize requests.
+            - While this reduces HOL blocking, it increases resource usage and network congestion.
+        
+        (2) Resource Bundling:
+
+            - Combine multiple smaller resources (like CSS or JS files) into a single larger file to reduce the number 
+              of requests.
+
+        (3) Content Delivery Networks (CDNs):
+
+            - Serve static content (e.g., images, scripts) from geographically distributed servers to reduce latency.
+
+________________________________________________________________________________________________________________________
+
+*   Explain HTTP/2 in detail.
+
+>>  HTTP/2 is the second major version of the HTTP, standardized in 2015. 
+    
+    It was developed to address performance limitations in HTTP/1.1 and optimize web communication, especially for 
+    resource-heavy websites.
+
+    Key Features:
+
+        (1) Multiplexing:
+
+            - HTTP/2 allows multiple requests and responses to be sent and received simultaneously over a single TCP 
+              connection. This is achieved through streams and frames.
+
+            - HTTP/2 introduces streams (logical channels) within the same connection where each stream has a unique 
+              identifier (stream ID).
+            
+            - Each stream is divided into frames (small data chunks). Frames for different streams can be interleaved 
+              and sent in parallel over the same connection.
+
+            - On the receiving end, the client or server reassembles the frames using stream IDs.
+              
+        (2) Server Push:
+
+            - In HTTP/1.1, the client must request resources explicitly. This adds latency, as the client can only request 
+              resources after it parses the HTML.
+
+            - HTTP/2 allows the server to proactively send resources to the client before the client requests them. 
+
+            - When the client requests a resource (e.g., an HTML page), the server can also push related resources 
+              (e.g., CSS, JS, images) that it knows the client will need.
+
+            - The client can reject pushed resources if it already has them (e.g., cached versions).
+
+        (3) Binary Protocol:
+
+            - HTTP/2 replaces the text-based protocol of HTTP/1.1 with a binary protocol. 
+            
+            - It encodes all communications (requests, responses, headers, and data) into a compact binary format.
+
+            - Instead of sending 'GET /index.html HTTP/1.1' as text, HTTP/2 encodes this request into a compact binary 
+              frame, which the server can process quickly.
+
+        (4) Header Compression (HPACK):
+
+            - In HTTP/1.1, headers are sent repeatedly with every request, leading to significant overhead.
+
+            - HTTP/2 uses HPACK to compress headers by maintaining a shared header table on both client and server sides. 
+
+            - If a header has already been sent, its index in the shared header table is sent instead of the full value.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Multiplexing in HTTP/2 in detail.
+
+>>  HTTP/2 introduces streams and frames to enable multiplexing. 
+
+    How it works:
+
+        (1) Streams:
+
+            - A stream is a bidirectional, independent logical channel for communication within a single TCP connection.
+            - Each stream has a unique Stream ID to distinguish it from others.
+            - Multiple streams can exist simultaneously.
+            
+        (2) Frames:
+
+            - HTTP/2 divides data into smaller frames (data chunks).
+            - Frames include different types like HEADERS (for metadata) and DATA (for payload).
+            - These frames are sent across different streams simultaneously. They are not restricted to a single stream.
+            
+        (3) Reassembly:
+
+            - On the receiving end, HTTP/2 uses the Stream ID to reassemble frames belonging to the same stream.
+            - This ensures that responses for multiple requests do not interfere with each other.
+
+    Example:
+
+        Consider a browser requesting the following resources:
+
+            - index.html
+            - style.css
+            - script.js
+            - image.png
+
+        - All four requests are sent concurrently on the same TCP connection.
+        - The server responds with interleaved frames for all resources.
+        - Frames are reassembled based on their Stream IDs at the client side.
+
+        _________________________________________________________________________
+        |    Stream 1 (HTML)	|   Frame 1     |   Frame 2     |	Frame 3     |
+        |_______________________________________________________________________|
+        |    Stream 2 (CSS)	    |   Frame 1     |   Frame 2     |	            |
+        |_______________________________________________________________________|
+        |    Stream 3 (JS)	    |   Frame 1     |   	        |   Frame 2     |
+        |_______________________________________________________________________|
+        |    Stream 4 (Image)	|   Frame 1     |   Frame 2     |	Frame 3     |
+        |_______________________________________________________________________|    
+
+________________________________________________________________________________________________________________________
+
+*   Explain HTTP/3 (QUIC) in detail.
+
+>>  HTTP/3 is the third major version of the HTTP and aims to resolve the limitations of HTTP/2, particularly the 
+    reliance on TCP. 
+    
+    HTTP/3 is built on QUIC (Quick UDP Internet Connections), a transport layer protocol designed to provide better 
+    performance, reduced latency, and resilience on modern networks.
+
+________________________________________________________________________________________________________________________
