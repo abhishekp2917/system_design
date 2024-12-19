@@ -282,3 +282,104 @@ ________________________________________________________________________________
             - Example Products: Skype, Google Voice, Cisco Webex.
 
 ________________________________________________________________________________________________________________________
+
+*   What is QUIC (Quick UDP Internet Connections) ?
+
+>>  QUIC is a modern transport layer protocol that works over UDP. It was initially developed by Google and is now 
+    standardized by the IETF.
+
+    Key Features:
+
+        (1) Works Over UDP:
+
+            - QUIC uses UDP as its foundation, allowing it to bypass issues with TCP, such as head-of-line blocking. 
+            - UDP’s lightweight nature makes it easier to implement new features at the transport layer.
+        
+        (2) Connection Establishment:
+
+            - QUIC combines the handshake for connection establishment and encryption (TLS 1.3) into a single round 
+              trip instead of Three-Way Handshake that happens in TCP, reducing latency.
+            
+        (3) Multiplexing Streams:
+
+            - Unlike TCP, QUIC supports multiple independent streams within a single connection. This avoids head-of-line 
+              blocking at the transport layer.
+            
+        (4) Connection Migration:
+
+            - QUIC supports connection migration, meaning it can maintain a connection even if the client’s IP address 
+              changes (e.g., switching from Wi-Fi to Mobile Data).
+            
+        (5) Built-In Security:
+
+            - QUIC has encryption and authentication built in, using TLS 1.3. 
+            - This makes all QUIC traffic secure by default, eliminating the need for separate security layers like 
+              TLS over TCP.
+
+    How QUIC Works:
+
+        (1) Connection Setup:
+
+            - The client sends an initial UDP packet containing a QUIC handshake request and the initial encryption 
+              setup (TLS 1.3 handshake).
+
+            - The server responds with its part of the handshake, completing encryption setup in a single round trip.
+
+        (2) Multiplexed Streams:
+
+            - Data is split into multiple independent streams. 
+            
+            - Each stream can be sent or received independently, avoiding blocking caused by delays in other streams.
+            
+            - QUIC uses packet numbers for each stream to manage data order and retransmissions without relying on 
+              TCP's sequence numbers.
+
+        (3) Encryption:
+
+            - QUIC encrypts all data using TLS 1.3 before sending it over UDP, ensuring confidentiality and integrity.
+
+        (4) Connection Migration:
+
+            - Each connection is identified by a unique connection ID. 
+            
+            - If the client’s IP changes (e.g., switching networks), the connection continues using the same 
+              connection ID, avoiding the need for a new handshake.
+
+    Advantages:
+
+        (1) Low Latency:
+
+            - Faster connection setup and multiplexing improve user experience, especially for web browsing and streaming.
+            
+        (2) Built-In Security:
+
+            - Enforced encryption ensures privacy and security without additional setup.
+            
+        (3) Connection Resilience:
+
+            - Connection migration provides seamless user experience during network changes.
+            
+        (4) Reduced Overhead:
+
+            - By combining transport and encryption protocols, QUIC eliminates redundant layers, reducing resource usage.
+
+
+    Disadvantages:
+
+        (1) Compatibility Issues:
+
+            - QUIC requires both client and server support, and some firewalls or NATs may block UDP traffic, limiting 
+              its adoption.
+
+        (2) Higher Complexity:
+
+            - The integration of transport and encryption features makes QUIC more complex to implement and debug.
+
+        (3) Increased Processing Overhead:
+
+            - The use of encryption for all packets can increase CPU usage compared to unencrypted TCP/UDP traffic.
+            
+________________________________________________________________________________________________________________________
+
+        
+
