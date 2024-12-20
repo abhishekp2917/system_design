@@ -1,0 +1,184 @@
+*   Explain FTP (File Transfer Protocol) in detail.
+
+>>  FTP is a standard communication protocol used for transferring files between a client and a server on a computer network. 
+
+    FTP is built on a client-server model architecture and relies on two communication channels between the client and 
+    the server which are a command channel for controlling the conversation and a data channel for transmitting file 
+    contents.
+
+    Key Features:
+
+        (1) File Transfer:
+            
+            - FTP allows users to upload and download files between a client and a server. 
+            
+            - It supports transferring various file types like text, binary, or multimedia files.
+
+        (2) Authentication:
+
+            - Supports both anonymous access (no credentials needed) and authenticated access (credentials required).
+            
+            - Authentication can enhance security, but data including credentials is transmitted in plain text unless encrypted.
+        
+        (3) Directory Navigation:
+            
+            - Users can navigate through directories on the server, list files, and manage directories (create, delete, 
+              and rename).
+
+        (4) Multiple Modes:
+
+            (a) Active Mode: 
+                
+                - The client opens a port and listens, and the server actively connects to it through Port 20.
+            
+            (b) Passive Mode: 
+            
+                - The server opens a port and listens, and the client connects to the server. 
+                
+                - Passive mode is commonly used to handle firewalls or NAT.
+            
+        (5) Transfer Modes:
+
+            (a) ASCII Mode: 
+            
+                - For text files, converts line-ending characters between operating systems.
+            
+            (b) Binary Mode: 
+            
+                - Transfers files exactly as they are, preserving their original format.
+
+        (6) Resume Support:
+            
+            - FTP allows users to resume interrupted downloads or uploads, which is particularly useful for transferring 
+              large files.
+
+        (7) Batch Transfers:
+            
+            - Multiple files can be transferred in a single session.
+
+    How FTP Works:
+
+        (1) Connection Establishment:
+
+            - The client initiates a connection to the FTP server using port 21 (command port).
+            - Authentication occurs using a username and password (or anonymously).
+
+        (2) Command Channel:
+
+            - The client sends commands like LIST, RETR (retrieve file), or STOR (store file) through the command channel.
+            - The server processes these commands and responds with appropriate status codes.
+        
+        (3) Data Channel:
+
+            - When a file transfer or directory listing is required, the server opens a separate port for the data channel.
+            - Depending on the mode (active/passive), either the client or the server initiates the connection.
+
+        (4) File Transfer:
+
+            - Files are transferred using either ASCII or binary mode.
+            - The data channel remains open until the file transfer is complete, after which it is closed.
+
+        (5) Session Termination:
+
+            - The client sends a QUIT command to terminate the session.
+            - The server closes the command and data channels.
+
+    Advantages:
+
+        (1) Efficient File Transfers:
+            
+            - Optimized for transferring large files over a network with support for resuming interrupted transfers.
+
+        (2) Platform Independence:
+            
+            - Works across various platforms and operating systems.
+
+        (3) Batch Processing:
+            
+            - Allows transferring multiple files and folders in one session.
+
+        (4) Custom Commands:
+            
+            - Provides a rich set of commands for advanced file and directory operations.
+
+    Disadvantages:
+
+        (1) Lack of Security:
+
+            - Transmits data, including credentials, in plain text, making it vulnerable to interception and attacks.
+            - Lacks built-in encryption, although secure variants like SFTP or FTPS address this limitation.
+    
+        (2) Complex Configuration:
+            
+            - Setting up an FTP server involves configuring users, permissions, and firewall rules, which can be complex.
+
+        (3) Limited File Integrity Checks:
+            
+            - FTP does not have mechanisms for ensuring file integrity during transfers (e.g., checksums).
+
+        (4) Resource Intensive:
+            
+            - Managing multiple data channels for simultaneous transfers can strain server resources.
+
+________________________________________________________________________________________________________________________
+
+*   What are the limitations of FTP that addressed in FTPS ?
+
+>>  The primary purpose of FTPS is to enhance FTP by adding encryption and secure authentication through SSL/TLS, while 
+    retaining compatibility with the existing FTP protocol.
+
+    (1) Lack of Data Encryption:
+        
+        - FTP transfers data (including usernames, passwords, and file contents) in plain text, making it highly 
+          vulnerable man-in-the-middle attacks.
+
+        - FTPS uses SSL/TLS encryption to secure both the control and data channels. This ensures that sensitive 
+          information is encrypted during transmission, protecting it from unauthorized access.
+
+
+    (2) No Integrity Checks:
+
+        - FTP lacks mechanisms to verify the integrity of the transferred data, making it susceptible to tampering 
+          during transmission.
+        
+        - FTPS uses SSL/TLS to provide data integrity checks, ensuring that files are not altered during transit.
+
+________________________________________________________________________________________________________________________
+
+*   Why HTTP is preferred over FTP for file uploads in modern application ?
+
+>>  While FTPS is indeed more secure and capable of handling large files, HTTP offers features and advantages that align 
+    better with the requirements of a modern platform like YouTube.
+
+    (1) Accessibility and Portability:
+
+        - HTTP is universally supported by browsers and devices, making it easier for users to upload videos without 
+          additional software or configurations.
+        
+        - FTPS, on the other hand, often requires specialized client software and additional setup, which can deter 
+          non-technical users.
+    
+    (2) Adaptive Streaming and Range Requests:
+
+        - HTTP supports features like partial content requests (via Range headers), enabling video streaming and 
+          resumable uploads.
+
+        - Adaptive streaming protocols like HLS or DASH are built on top of HTTP, optimizing video delivery for varying 
+          network conditions.
+
+        - FTPS does not natively support partial content requests or streaming, which are critical for video playback 
+          and efficient uploads.
+
+    (3) Support for Modern Features:
+        
+        - HTTP supports modern features like:
+            
+            (a) Resumable Uploads: Essential for handling interruptions during large file uploads.
+
+            (b) Cross-Origin Resource Sharing (CORS): Allows secure cross-origin requests, critical for web applications.
+            
+            (c) HTTP/2 and HTTP/3: These protocols improve speed, multiplexing, and latency.
+
+        - FTPS lacks native support for these modern web features, limiting its applicability to web-based platforms.
+
+________________________________________________________________________________________________________________________
