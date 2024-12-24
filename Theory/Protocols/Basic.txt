@@ -245,37 +245,31 @@ ________________________________________________________________________________
             - Use Case: Ensures synchronized playback of audio and video streams.
             - Example Products: Zoom, Microsoft Teams, Skype.
 
-        (2) WebRTC (Web Real-Time Communication):
-
-            - Definition: Allows peer-to-peer communication between browsers, supporting video calls and live chats based on RTP.
-            - Use Case: Enables real-time multimedia communication without the need for additional servers.
-            - Example Products: Zoom, Microsoft Teams, Skype.
-
-        (3) DNS (Domain Name System):
+        (2) DNS (Domain Name System):
 
             - Definition: Resolves domain names to IP addresses.
             - Use Case: Converts human-friendly domain names into machine-readable IP addresses.
             - Example Products: Google DNS, Cloudflare DNS.
 
-        (4) DHCP (Dynamic Host Configuration Protocol):
+        (3) DHCP (Dynamic Host Configuration Protocol):
 
             - Definition: Assigns IP addresses to devices on a network automatically.
             - Use Case: Ensures devices can connect to a network without manual configuration.
             - Example Products: Windows DHCP Server, Cisco DHCP.
             
-        (5) NTP (Network Time Protocol):
+        (4) NTP (Network Time Protocol):
 
             - Definition: Synchronizes time across devices on a network.
             - Use Case: Ensures devices across a network have the same time for consistent operation.
             - Example Products: Chrony, NTP Server, Network Time Protocol Daemon (NTPd).
 
-        (6) QUIC (Quick UDP Internet Connections):
+        (5) QUIC (Quick UDP Internet Connections):
 
             - Definition: Provides faster web communication using UDP, used by HTTP/3.
             - Use Case: Improves performance and latency for web applications, particularly in reducing load times.
             - Example Products: Google Chrome, Microsoft Edge.
 
-        (7) VoIP Protocols:
+        (6) VoIP Protocols:
 
             - Definition: Transmit voice over IP networks using protocols like G.711, G.729, etc.
             - Use Case: Used in voice calls and teleconferencing services (e.g., Skype, Zoom).
