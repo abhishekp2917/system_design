@@ -1,0 +1,164 @@
+*   What are the limitations of HashTables which makes Bloom Filters an obvious choice ?
+
+>>  (1) Memory Usage:
+
+        - Hash tables require storing the actual data or keys in memory, which can be inefficient for very large datasets.
+        
+        - As the dataset grows, the hash table may need to resize (often doubling in size), leading to increased memory 
+          consumption.
+
+        - Bloom filters are memory efficient because they only store a bit array, not the actual keys and use hash functions 
+          to set bits in the array, requiring a fixed amount of memory regardless of the dataset size.
+
+    (2) Probabilistic Membership Checking:
+
+        - If the requirement is only to check if element is possibly in the set and can tolerate false positives, a Bloom 
+          filter provides a lightweight solution.
+
+        - Hash tables store the entire key, which is unnecessary when the goal is only to check the membership of a key 
+          in a set, rather than needing the key itself.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Bloom Filters in detail.
+
+>>  A Bloom filter is a space-efficient probabilistic data structure used to test whether an element is a member of a set. 
+
+    It allows for false positives (it might say an element is in the set when it isn't) while guaranteeing no 
+    false negatives (if it says an element is not in the set, it's definitely not).
+
+    How a Bloom Filter Works:
+
+        (1) A Bloom filter consists of:
+
+            (a) Bit Array: 
+                
+                - A fixed size (m) array whose size is determined ahead of time based on the expected number of elements 
+                  to be inserted and the acceptable false positive rate.
+
+                - Its size is crucial to control memory usage and false positive probability.
+            
+            (b) Hash Functions: 
+            
+                - A Bloom filter uses multiple (k) hash functions to compute multiple positions in the bit array for each element. 
+                
+                - Using multiple functions reduce the chances of collisions (when multiple elements result into the same bit).
+
+        (2) Inserting Elements into a Bloom Filter:
+
+            - When you insert an element into the Bloom filter:
+
+            (a) Hashing: 
+            
+                - The element is passed through each of the k hash functions.
+
+            (b) Setting Bits: 
+            
+                - Each hash function produces an index. 
+                - The bits at these indices are set to 1 in the Bit Array to mark the presence of that element.
+
+        (3) Checking Membership in the Bloom Filter:
+
+            - To check whether an element is in the Bloom filter:
+
+            (a) Hashing: 
+            
+                - The element is passed through the same k hash functions.
+
+            (b) Checking Bits: 
+            
+                - The positions in the bit array corresponding to the hash outputs are checked.
+                - If all the corresponding bits are 1, the Bloom filter probably contains the element.
+                - If any of the corresponding bits is 0, the element is definitely not in the set.
+    Example:
+
+        - Suppose we want to track the following set of elements: {cat, dog, bird}.
+
+        (1) Initialization:
+
+            - Bit array of size 10: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            
+            - Two hash functions i.e. h1(x) and h2(x).
+
+        (2) Insert "cat":
+            
+            - h1("cat") = 2
+            - h2("cat") = 5
+            - Set bits at indices 2 and 5: [0, 0, 1, 0, 0, 1, 0, 0, 0, 0]
+
+        (3) Insert "dog":
+        
+            - h1("dog") = 3 
+            - h2("dog") = 6
+            - Set bits at indices 3 and 6: [0, 0, 1, 1, 0, 1, 1, 0, 0, 0]
+
+        (4) Insert "bird":
+
+            - h1("bird") = 1 
+            - h2("bird") = 5 
+            - Set bits at indices 1 and 5: [0, 1, 1, 1, 0, 1, 1, 0, 0, 0]
+
+        (5) Query "cat":
+
+            - h1("cat") = 2 
+            - h2("cat") = 5
+            - Bits at indices 2 and 5 are both 1 
+            - This represents that "cat" might be in the set.
+
+        (6) Query "fish":
+
+            - h1("fish") = 4 
+            - h2("fish") = 8
+            - Bit at index 4 is 0.
+            - This represents "fish" is definitely not in the set.
+
+    Advantages:
+
+        (1) Space-efficient: 
+        
+            - Requires less memory compared to storing the actual set.
+        
+        (2) Fast: 
+        
+            - Insertions and lookups are very quick.
+
+        (3) No False Negatives: 
+        
+            - Guarantees correctness when an element is not in the set.
+
+    Disadvantages:
+
+        (1) False Positives: 
+        
+            - May incorrectly say an element is present when it's not.
+        
+        (2) Fixed Size: 
+            
+            - The size of the bit array must be decided in advance, and it cannot dynamically grow without recomputation.
+        
+        (3) Hash Function Dependency: 
+        
+            - Performance depends on the choice and number of hash functions.
+
+    Probability of false positive:
+
+            ___                   ___ k
+        p ≈ |              1        |
+            |  1   _   _________    |
+            |            (k*n/m)    |
+            |___       e         ___|
+
+        where,
+            p = Probability of a false positive
+            k = Number of hash functions
+            n = Number of elements
+            m = Size of bit array
+
+        - Increasing m reduces the false positive probability.
+        
+        - Increasing k reduces collisions but can increase false positives if too many hash functions are used.
+        
+        - The optimal number of hash functions (𝑘) is given by:
+            
+            k = (m/n) * ln(2)
+________________________________________________________________________________________________________________________
