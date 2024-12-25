@@ -1,5 +1,128 @@
 *   Explain WebSocket in detail.
 
->>
+>>  WebSocket is a full-duplex communication protocol that operates over a single TCP connection, allowing persistent 
+    communication between a client and a server. 
+    
+    Unlike traditional HTTP, which is request-response based, WebSocket enables both client and server to send and 
+    receive messages independently, making it suitable for real-time applications.
+
+    Key Features:
+
+        (1) Full-Duplex Communication:
+
+            - Both client and server can send and receive data simultaneously, unlike HTTP.
+
+        (2) Low Latency:
+
+            - Persistent connection reduces overhead, leading to faster communication compared to polling.
+
+        (3) Lightweight Headers:
+
+            - After the initial handshake, WebSocket frames have minimal overhead, making communication efficient.
+
+        (4) Real-Time Data Exchange:
+
+            - Ideal for applications requiring real-time updates, such as chat apps, online gaming, and live financial 
+              data feeds.
+
+        (5) Binary and Text Messages:
+
+            - Supports transmission of both text (UTF-8) and binary data.
+
+        (6) Ping-Pong Frames:
+
+            - Built-in mechanism to keep the connection alive and check if the peer is responsive.
+
+    How WebSocket Works:
+        
+        (1) Establishing a Connection:
+
+            - A WebSocket connection starts as a standard HTTP request. 
+            
+            - The client sends an HTTP request to the server with an Upgrade header to indicate the desire to establish 
+              a WebSocket connection.
+                
+            - Example HTTP headers in the request:
+
+                ```
+                    GET /chat HTTP/1.1
+                    Host: example.com
+                    Upgrade: websocket
+                    Connection: Upgrade
+                    Sec-WebSocket-Key: <randomly-generated-key>
+                    Sec-WebSocket-Version: 13
+                ```
+
+            - The server responds with an HTTP 101 status code to confirm the protocol switch:
+
+                ```
+                    HTTP/1.1 101 Switching Protocols
+                    Upgrade: websocket
+                    Connection: Upgrade
+                    Sec-WebSocket-Accept: <hashed-key>
+                ```
+
+        (2) Upgrading to WebSocket:
+
+            - The Sec-WebSocket-Key is hashed by the server using SHA-1 and a magic string (258EAFA5-E914-47DA-95CA-C5AB0DC85B11). 
+            
+            - The server includes the hashed value in the Sec-WebSocket-Accept response header to verify the handshake.
+
+        (3) Persistent Connection:
+
+            - Once the handshake is complete, the HTTP connection is upgraded to a WebSocket connection.
+            
+            - Both client and server can now send and receive messages asynchronously.
+
+            - Unlike HTTP where for each request a new connection needs to be created, Websocket has one single persistent 
+              connection for each request.
+
+        (4) Data Transmission:
+
+            - Data is transmitted in WebSocket frames. 
+            
+            - Each frame contains:
+
+                - FIN: Indicates if this is the final frame in a message.
+                - Opcode: Specifies the type of frame (text, binary, close, ping, pong).
+                - Payload: The actual data being sent.
+
+        (5) Closing the Connection:
+
+            - Either the client or server can close the connection by sending a close frame. 
+            
+            - The other side acknowledges this with its own close frame.
+
+    Advantages:
+
+        (1) Efficiency:
+
+            - Reduces HTTP overhead by maintaining a single connection for all communication.
+            
+        (2) Real-Time Communication:
+
+            - Enables instantaneous data exchange, crucial for interactive applications.
+            
+        (3) Bidirectional Communication:
+
+            - Removes the need for separate request-response cycles, allowing seamless interaction.
+            
+    Disadvantages:
+
+        (1) Complexity:
+
+            - Requires careful handling of connections, especially for large-scale applications.
+        
+        (2) Firewall/Proxy Issues:
+
+            - Some firewalls or proxies might block WebSocket traffic, leading to connectivity issues.
+        
+        (3) Lack of Native Load Balancing:
+
+            - Traditional load balancers might struggle to maintain WebSocket connections since these are persistent.
+        
+        (4) Stateful Connection:
+
+            - WebSocket requires the server to maintain connection state for each client, increasing memory usage.
 
 ________________________________________________________________________________________________________________________
