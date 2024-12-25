@@ -1,3 +1,123 @@
+*   Explain Polling in detail. 
+
+>>  Polling is a technique used in client-server communication where the client repeatedly sends HTTP requests to the 
+    server at regular intervals to check for updates or new information.
+
+    How Polling Works
+        
+        (1) Client Sends a Request:
+
+            - At a fixed time interval, the client sends an HTTP request to the server asking for updates or data.
+
+        (2) Server Processes the Request:
+
+            - The server processes the request and responds, regardless of whether new information is available.
+            - If there is no new data, the server may respond with an empty result or the same data as before.
+        
+        (3) Client Waits for the Next Interval:
+
+            - After receiving the response, the client waits for the next scheduled interval and repeats the process.
+
+    Example:
+        
+        - A weather application that updates the temperature every 10 seconds sends periodic requests to the server, 
+          regardless of whether the temperature has changed.
+
+    Advantages:
+
+        (1) Simplicity:
+
+            - Polling is straightforward to implement using standard HTTP requests and responses.
+                    
+        (2) Compatibility:
+
+            - Works with any server that supports HTTP, making it widely applicable and platform-independent.
+        
+        (3) Statelessness:
+
+            - Each request is independent, which simplifies the server's design since no persistent connections or state 
+              information need to be maintained.
+        
+    Disadvantages:
+        
+        (1) High Network Overhead:
+
+            - Polling involves repeated requests, even when there is no new data to retrieve resulting in unnecessary 
+              network traffic.
+        
+        (2) Increased Server Load:
+
+            - The server must process a large number of requests, even if they do not result in meaningful responses. 
+        
+        (3) Latency:
+
+            - Updates are not instantaneous. The client must wait until the next polling interval to fetch new data, 
+              leading to delays in time-sensitive applications.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Long polling and how it mitigates Polling limitations.
+
+>>  Long polling is a technique used in client-server communication to achieve near real-time updates without the 
+    inefficiencies of frequent requests (as seen in traditional polling). 
+    
+    It bridges the gap between simple polling and more advanced techniques like WebSockets, providing a way for the client 
+    to receive updates as soon as they are available.
+
+    How Long Polling Works
+        
+        (1) Client Sends a Request:
+
+            - The client sends an HTTP request to the server, asking for updates.
+        
+        (2) Server Holds the Request:
+
+            - Instead of responding immediately, the server keeps the connection open until new data becomes available 
+              or a timeout occurs.
+        
+        (3) Server Sends a Response:
+
+            - When new data becomes available the server sends it to the client.
+            
+            - If no data is available before the timeout, the server responds with an empty or default message.
+        
+        (4) Client Sends a New Request:
+
+            - Upon receiving the server's response, the client processes the data and immediately sends a new long-polling 
+              request.
+            
+            - This cycle repeats continuously, providing near real-time updates.
+
+    Advantages:
+
+        (1) Reduced Network Traffic:
+
+            - Compared to traditional polling, fewer requests are made when no data is available.
+        
+        (2) Stateless Communication:
+
+            - Each long-polling request is independent, meaning the server doesn't need to maintain client state between requests.
+        
+        (3) Near Real-Time:
+
+            - The client gets updates as soon as they are available on the server, minimizing latency.
+
+        (4) Compatibility:
+
+            - Works with standard HTTP protocols, making it widely compatible with existing infrastructure.
+
+    Disadvantages:
+
+        (1) Server Resource Usage:
+
+            - The server holds open connections, which can consume significant resources under heavy client loads.
+
+        (2) Connection Overhead:
+
+            - Each long-polling request involves setting up and tearing down an HTTP connection, which adds some overhead.
+            
+________________________________________________________________________________________________________________________
+
 *   Explain WebSocket in detail.
 
 >>  WebSocket is a full-duplex communication protocol that operates over a single TCP connection, allowing persistent 
