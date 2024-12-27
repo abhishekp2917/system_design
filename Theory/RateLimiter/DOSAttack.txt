@@ -1,0 +1,67 @@
+*   What is DoS (Denial-of-Service) Attack ?
+
+>>  A DoS attack is a malicious attempt to disrupt the normal functioning of a target system, network, or service by 
+    overwhelming it with an excessive amount of requests. 
+    
+    The primary goal of a DoS attack is to make the target unavailable to legitimate users.
+
+    How DoS Attack Works:
+
+        (1) Flooding with Excessive Requests:
+
+            - The attacker sends an overwhelming number of requests to the target, exhausting its resources 
+              (e.g., CPU, memory, bandwidth).
+
+        (2) Resource Exhaustion:
+
+            - The server becomes unable to process legitimate requests due to limited resources like processing power, 
+              memory, or bandwidth being fully utilized.
+
+        (3) Service Unavailability:
+
+            - Legitimate users experience significant delays, errors, or complete inability to access the service.
+
+________________________________________________________________________________________________________________________
+
+*   What is DDoS (Distributed Denial-of-Service) Attack ?
+
+>>  A DDoS attack is an enhanced version of a DoS attack, where multiple sources work together to overwhelm a target system. 
+    
+    The goal is to disrupt the target’s normal operation, making it inaccessible to legitimate users.
+
+    How DDoS Attack Works:
+
+        (1) Botnet Creation:
+
+            - Attackers infect a large number of devices (IoT devices, computers, smartphones, etc.) with malware to 
+              create a botnet (a network of devices hijacked by attacker).
+            
+            - These devices are controlled remotely by attacker without the knowledge of their owners.
+
+        (2) Attack Execution:
+
+            - The attacker instructs all the devices in the botnet to send massive amounts of traffic to the target.
+        
+        (3) Target Overload:
+
+            - The flood of incoming traffic consumes the target's bandwidth, CPU, memory, or other resources, causing 
+              it to slow down, crash, or become completely unavailable.
+    
+    Why Are DDoS Attacks So Effective:
+
+        (1) Distributed Sources:
+
+            - Traffic comes from thousands (or millions) of devices, making it hard to distinguish legitimate requests 
+              from malicious ones.
+        
+        (2) Global Scale:
+
+            - Botnets are often distributed worldwide, making it difficult to block traffic based on geographic location.
+
+        (3) Dynamic Nature:
+
+            - Attackers can adjust their tactics, such as changing the type of traffic or attack vector, to evade detection.
+
+________________________________________________________________________________________________________________________
+
+

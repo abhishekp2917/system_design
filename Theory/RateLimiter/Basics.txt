@@ -1,0 +1,85 @@
+*   What is Rate Limiter ?
+
+>>  A rate limiter is used to control the rate at which requests are processed, ensuring that a system is not overwhelmed 
+    by excessive requests. 
+    
+    Rate limiting reduces the possibility of Denial-of-Service (DoS) attacks by placing restrictions on the maximum number 
+    of requests that can be served in a given amount of time.
+
+________________________________________________________________________________________________________________________
+
+*   What are various types of Rate Limiting ?
+
+>>  (1) IP-based Rate Limiting:
+
+        - The number of requests that can be sent from a single IP address in a specified amount of time is limited by 
+          IP-based rate limitation (e.g., 10 requests per minute). 
+          
+        - Restricting the amount of traffic from a single IP address is frequently used to stop abuses like bots and 
+          Denial-of-Service attacks.
+
+        Advantages:
+            
+            - It’s simple to implement at both the network and application level.
+            
+            - If someone is trying to flood the system with requests, limiting their IP can prevent this.
+        
+        Disadvantages:
+            
+            - Attackers can use techniques like VPNs, proxy servers, or even botnets to spoof different IPs and get 
+              around the limit.
+            
+            - If multiple users share the same IP address (like in a corporate network), a legitimate user could get 
+              blocked if someone else on the same network exceeds the limit.
+
+    (2) Server-based Rate Limiting:
+
+        - The number of requests that can be sent to a particular server in a predetermined period of time 
+          (e.g., 100 requests per second) is controlled by server-based rate restriction.
+
+        Advantages:
+            
+            - Helps protect the server from being overwhelmed, especially during peak usage.
+        
+        Disadvantages:
+            
+            - Attackers can spread their requests across multiple servers, staying within the rate limit for each server 
+              while still overwhelming the system overall..
+            
+            - If the limit is too low or the server is under heavy load, even legitimate users might face delays or blocks.
+
+
+    (3) Geography-based Rate Limiting:
+
+        - Geography-based rate limiting restricts traffic based on the geographic location of the IP address. 
+        
+        - It’s useful for blocking malicious requests that originate from certain regions (for example, countries known 
+          for high levels of cyber attacks), or for complying with regional laws and regulations.
+
+        Advantages:
+
+            - If you know certain regions are the source of a lot of bad traffic (e.g., spam, hacking attempts), you can 
+              limit requests from those areas.
+            
+            - Helps comply with local data protection laws or restrictions on content in certain countries.
+        
+        Disadvantages:
+            
+            - Attackers can use VPNs or proxy servers to disguise their actual location and get around geography-based limits.
+            
+            - Users traveling or accessing services via international servers (like employees using VPNs) might get 
+              blocked if they’re in a region that's restricted.
+
+________________________________________________________________________________________________________________________
+
+*   What are various Rate limiting algorithms ?
+
+>>  Following are the widely used Rate limiting algorithms:
+
+      (1) Token Bucket
+      (2) Leaky Bucket 
+      (3) Fixed Window Counter
+      (4) Sliding Window Log
+      (5) Sliding Window Counter
+
+________________________________________________________________________________________________________________________
