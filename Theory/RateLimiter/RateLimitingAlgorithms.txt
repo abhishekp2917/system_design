@@ -1,0 +1,84 @@
+*   Explain Token Bucket rate limiting algorithm in detail ?
+
+>>  How It Works:
+
+        (1) Tokens in a Bucket:
+
+            - A bucket holds tokens which represents permission to process one request.
+           
+            - The bucket has a fixed capacity (e.g., 100 tokens).
+
+        (2) Adding Tokens:
+
+            - Tokens are added to the bucket at a constant rate (e.g., 10 tokens per second).
+            
+            - If the bucket is full, new tokens are discarded until space is available.
+        
+        (3) Processing Requests:
+
+            - When a request arrives, the algorithm checks if there’s at least one token in the bucket.
+            
+            - If a token is available, it is removed, and the request is processed.
+            
+            - If no tokens are available, the request is denied or delayed.
+
+        (4) Handling Bursts:
+
+            - If the bucket has accumulated tokens (because of lower traffic earlier), it can allow a burst of requests 
+              up to the bucket’s capacity.
+
+            - Once tokens are depleted, the algorithm throttles further requests to the token replenishment rate.
+
+    Example:
+
+        - Bucket Capacity   : 10 tokens
+        
+        - Token Refill Rate : 2 tokens/second
+
+        - At time T0, the bucket is full with 10 tokens.
+        
+        - At T1 (1 second later), 2 tokens are added, reaching the maximum of 10 tokens (if none were used).
+        
+        - If a burst of 7 requests arrives, all are processed, leaving 3 tokens.
+        
+        - If another burst of 5 requests arrives immediately after, only 3 are processed, and the remaining 2 are denied.
+    
+    Advantages:
+
+        (1) Burst Handling:
+
+            - Supports short bursts of traffic, as tokens accumulate during idle periods.
+            
+            - Provides flexibility for scenarios with variable traffic patterns.
+        
+        (2) Simplicity:
+
+            - Easy to understand and implement.
+            
+            - Works efficiently in distributed systems.
+
+        (3) Efficient Resource Usage:
+
+            - Prevents overloading the system by throttling requests when necessary.
+
+        (4) Fine Control:
+
+            - Allows independent control of burst size (bucket capacity) and steady traffic rate (token refill rate).
+
+    Disadvantages:
+
+        (1) Overhead:
+
+            - Requires maintaining state for each bucket (e.g., tokens and last refill time) which can be memory-intensive 
+              in large-scale systems.
+
+        (2) Limited Precision:
+
+            - It may not prevent large bursts over longer timeframes if multiple buckets accumulate tokens.
+
+        (3) Fairness:
+
+            - If multiple clients share a bucket, it does not guarantee fairness, as a single client could deplete tokens 
+              rapidly.
+
+________________________________________________________________________________________________________________________
