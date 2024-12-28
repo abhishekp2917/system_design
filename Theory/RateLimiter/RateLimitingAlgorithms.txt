@@ -45,17 +45,17 @@
     
     Advantages:
 
-        (1) Burst Handling:
-
-            - Supports short bursts of traffic, as tokens accumulate during idle periods.
-            
-            - Provides flexibility for scenarios with variable traffic patterns.
-        
-        (2) Simplicity:
+        (1) Simplicity:
 
             - Easy to understand and implement.
             
             - Works efficiently in distributed systems.
+
+        (2) Burst Handling:
+
+            - Supports short bursts of traffic, as tokens accumulate during idle periods.
+            
+            - Provides flexibility for scenarios with variable traffic patterns.
 
         (3) Efficient Resource Usage:
 
@@ -124,21 +124,21 @@ ________________________________________________________________________________
         
         - Over time, the system processes 2 requests/second, reducing the bucket's load.
     
-    Advantages
-        
-        (1) Smooth Traffic Flow:
+    Advantages:
 
-            - Ensures a consistent and predictable processing rate, avoiding sudden bursts or spikes.
-        
-        (2) Simple to Implement:
+        (1) Simplicity:
 
             - Easy to understand and integrate into systems.
+        
+        (2) Smooth Traffic Flow:
+
+            - Ensures a consistent and predictable processing rate, avoiding sudden bursts or spikes.
         
         (3) Effective Resource Control:
 
             - Prevents overloading the system by dropping excess requests.
     
-    Disadvantages
+    Disadvantages:
         
         (1) No Burst Support:
 
@@ -149,6 +149,144 @@ ________________________________________________________________________________
 
 *   Explain Fixed Window Counter rate limiting algorithm in detail ?
 
->>
+>>  How It Works:
+
+        (1) Time Division:
+
+            - Time is divided into fixed intervals (e.g., 1 second, 1 minute).
+            
+            - Each interval is treated as a "window."
+        
+        (2) Request Counting:
+
+            - For each window, a counter is initialized to zero at the start.
+            
+            - Each incoming request increments the counter for the current window.
+        
+        (3) Rate Limiting:
+
+            - If the counter exceeds a predefined limit during the current window, further requests are denied.
+            
+            - At the start of the next window, the counter resets to zero.
+
+    Example:
+        
+        - Window size   : 1 second each
+
+        - Limit         : 10 requests per second    
+        
+        - At time T0 (start of a new window), counter is initialized to 0.
+
+        - Requests arrive and are processed.
+
+        - After 10 requests, the counter reaches the limit, denying any further request in current window.
+            
+        - At T1 (next second), counter resets to 0, and requests are accepted again.
+
+    Advantages:
+
+        (1) Simplicity:
+
+            - Easy to implement and understand.
+        
+            - Minimal overhead, as it requires only a counter for each fixed window.
+
+        (2) Low Memory Usage:
+
+            - Maintains just one counter per user or API key, making it memory-efficient for simple rate-limiting needs.
+
+        (3) Predictable Behavior:
+
+            - The algorithm provides clear and consistent rate limits within each fixed window.
+
+    Disadvantages:
+
+        (1) Boundary Problems (Burstiness):
+
+            - The algorithm allows "bursts" of traffic at the boundary of two windows.
+            
+            - If the limit is 10 requests/second, a user could send 10 requests at the very end of one second and another 
+              10 requests at the start of the next, effectively sending 20 requests in a short period.
+        
+        (2) No Granularity Within the Window:
+
+            - Cannot distribute requests smoothly across the window.
+            
+            - All requests could arrive at the start of the window, potentially causing load spikes.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Sliding Window Counter rate limiting algorithm in detail ?
+
+>>  How It Works:
+
+        (1) Dynamic Time Windows:
+
+            - Instead of dividing time into fixed intervals, the sliding window moves dynamically based on the time of 
+              incoming requests.
+            
+            - Each request contributes to a time-based record, and the system continuously calculates the count of requests 
+              within a rolling time window.
+        
+        (2) Request Timestamps:
+
+            - For each incoming request, the algorithm stores a timestamp in a data structure (e.g., a queue or a hashmap).
+            
+            - Old requests (which are yet to be processed) that fall outside the sliding window are removed from this data 
+              structure.
+
+        (3) Rate Limiting:
+
+            - The system checks if the number of requests within the sliding window exceeds the limit.
+            
+            - If not, the request is allowed else the request is denied or delayed.
+
+    Example:
+
+        - Sliding Window size: 1 second
+
+        - Limit: 5 requests per second
+        
+        - At T0 = 0.1s, request arrives and is allowed. (Queue: [0.1])
+    
+        - At T1 = 0.2s, Request arrives and is allowed. (Queue: [0.1, 0.2])
+
+        - At T2 = 0.5s, Request arrives and is allowed. (Queue: [0.1, 0.2, 0.5])
+
+        - At T3 = 0.9s, Request arrives and is allowed. (Queue: [0.1, 0.2, 0.5, 0.9])
+
+        - At T4 = 1.0s, Request arrives and is allowed. (Queue: [0.1, 0.2, 0.5, 0.9, 1.0])
+
+        - At T5 = 1.1s, Request arrives and is allowed. 
+        
+        - Since, request at 0.1s is no longer in the 1 second window, it will be removed. (Queue: [0.2, 0.5, 0.9, 1.0, 1.1])
+    
+    Advantages:
+        
+        (1) Smooth Traffic Control:
+
+            - Eliminates the burstiness issue seen in the fixed window counter.
+            
+            - Distributes requests more evenly across time.
+
+        (2) Fairness:
+
+            - Accurately enforces limits regardless of when requests arrive.
+            
+    Disadvantages:
+
+        (1) Complexity:
+
+            - More complex to implement than the fixed window counter.
+
+        (2) Higher Memory Usage:
+
+            - Requires maintaining a data structure to store timestamps for all recent requests.
+            
+            - Memory requirements grow with the rate limit and window size.
+            
+        (3) Computational Overhead:
+
+            - Continuous pruning of old timestamps and real-time recalculations can increase computational cost.
 
 ________________________________________________________________________________________________________________________
