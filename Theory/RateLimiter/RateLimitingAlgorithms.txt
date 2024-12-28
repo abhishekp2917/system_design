@@ -82,3 +82,73 @@
               rapidly.
 
 ________________________________________________________________________________________________________________________
+
+*   Explain Leaky Bucket rate limiting algorithm in detail ?
+
+>>  How It Works:
+
+        - The leaky bucket algorithm works by envisioning a bucket with a small hole at the bottom.
+
+        (1) Initialization:
+
+            - Define a bucket capacity B (the maximum number of requests the bucket can hold).
+            
+            - Set a leakage rate R (number of requests processed per unit time).
+
+        (2) Adding Requests:
+
+            - Incoming requests are treated as water being poured into the bucket which has a fixed capacity (e.g., 10 requests).
+        
+        (3) Fixed Processing Rate:
+
+            - Water leaks out of the bucket at a constant rate, simulating the system processing requests at a steady 
+              pace (e.g., 1 request/second).
+            
+            - The rate of leakage is constant, regardless of how much requests are in the bucket.
+
+        (4) Overflow Handling:
+
+            - If the bucket is full, then any additional incoming request will be denied.
+
+    Example:
+
+        - Bucket Capacity   : 5 requests
+        
+        - Leakage Rate      : 2 requests/second
+
+        - At time T0, the bucket is empty.
+        
+        - At T1, 4 requests arrive and the bucket now holds 4 requests.
+        
+        - At T2, another 3 requests arrive. But since, the bucket can only hold 1 more, so 2 requests overflow and are denied.
+        
+        - Over time, the system processes 2 requests/second, reducing the bucket's load.
+    
+    Advantages
+        
+        (1) Smooth Traffic Flow:
+
+            - Ensures a consistent and predictable processing rate, avoiding sudden bursts or spikes.
+        
+        (2) Simple to Implement:
+
+            - Easy to understand and integrate into systems.
+        
+        (3) Effective Resource Control:
+
+            - Prevents overloading the system by dropping excess requests.
+    
+    Disadvantages
+        
+        (1) No Burst Support:
+
+            - Does not allow for bursts of traffic, as requests are processed at a fixed rate, even if the system has 
+              idle capacity.
+
+________________________________________________________________________________________________________________________
+
+*   Explain Fixed Window Counter rate limiting algorithm in detail ?
+
+>>
+
+________________________________________________________________________________________________________________________
