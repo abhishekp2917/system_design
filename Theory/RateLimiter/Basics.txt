@@ -76,10 +76,157 @@ ________________________________________________________________________________
 
 >>  Following are the widely used Rate limiting algorithms:
 
-      (1) Token Bucket
-      (2) Leaky Bucket 
-      (3) Fixed Window Counter
-      (4) Sliding Window Log
-      (5) Sliding Window Counter
+        (1) Token Bucket
+        (2) Leaky Bucket 
+        (3) Fixed Window Counter
+        (4) Sliding Window Log
+        (5) Sliding Window Counter
 
 ________________________________________________________________________________________________________________________
+
+*   What are various Rate limiting architecture being followed in the industry ?
+
+>>  (1) Gateway-Level Rate Limiter:
+
+        How It Works:
+          
+            (a) API Gateway Interception:
+
+                - An API gateway or reverse proxy (e.g., NGINX) acts as the entry point for all requests to the backend services.
+            
+                - The gateway enforces rate limits before forwarding requests.
+          
+            (b) Request Identification:
+
+                - Requests are identified using API keys, IP addresses, or user accounts.
+          
+                - Rate-limiting data (e.g., counters or tokens) is maintained by the gateway in-memory.
+        
+            (c) Rate Limiting Enforcement:
+
+                - If the request count for a client exceeds the limit, the gateway denies the request with a proper error 
+                  response (e.g., HTTP 429).
+            
+                - Otherwise, the request is forwarded to the backend.
+        
+        Advantages:
+
+            (a) Centralized Control: 
+            
+                - Simple to manage rate limiting for all backend services at one place.
+            
+            (b) Scalability: 
+            
+                - Gateways are designed to handle high traffic and can be scaled horizontally.
+
+        Disadvantages:
+
+            (a) Bottleneck Potential: 
+            
+                - The gateway can become a single point of failure or performance bottleneck.
+
+    (2) Individual Service Rate Limiter:
+        
+        How It Works:
+          
+           (a) Request Arrival:
+                
+                - A client sends a request directly to the individual service or through an intermediary 
+                  (e.g., an API gateway).
+
+            (b) Rate-Limiting Logic:
+                
+                - Each individual service handles the rate limiting logic independently. 
+                                
+                - The service tracks the client's request count or token availability in memory or a local database.
+                
+                - It applies a rate-limiting algorithm (e.g., Fixed Window, Token Bucket, Sliding Window).
+            
+            (c) Decision:
+                
+                - If the client is within the defined rate limits, the service processes the request.
+                
+                - Otherwise, the service returns an error response (e.g., HTTP 429 Too Many Requests).
+        
+        Advantages:
+            
+            (a) Granular Control:
+
+                - Rate limits can be tailored to the specific needs of each service, ensuring more precise 
+                  resource protection.
+            
+            (b) Scalability:
+
+                - The service can operate independently, avoiding dependency on external components like 
+                  centralized rate limiters.
+
+            (c) Low Latency:
+
+                - Decisions are made directly at the service level, reducing latency.
+
+            (d) Fault Tolerant:
+
+                - If a service goes down, it won't impact rate limiting of other services in the system. 
+
+        Disadvantages:
+            
+            (a) Complexity in Distributed Systems:
+
+                - Each service must implement its own rate-limiting logic, leading to duplication of effort and 
+                  maintenance challenges.
+
+            (b) Performance Overhead:
+
+                - implementing rate-limiting data locally can impact on service performance, especially in high-traffic 
+                  scenarios.
+    
+    (3) Distributed Rate Limiter:
+        
+        How It Works:
+            
+            (a) Centralized Server:
+
+                - A shared datastore (e.g., Redis, Memcached) maintains counters, tokens, or timestamps for each client 
+                  or API key.
+                
+                - The datastore ensures that all rate-limiting decisions are consistent across multiple nodes.
+    
+            (b) Distributed Servers:
+
+                - Each server in the distributed system queries or updates the shared datastore whenever a request is received.
+                
+                - The rate limiting algorithm (e.g., Token Bucket, Sliding Window) is implemented in the centralized store.
+    
+            (c) Rate Limiting Decision:
+
+                - If the request count for a given key (e.g., API key, user ID) within the specified time window exceeds 
+                  the allowed limit, the request is rejected (HTTP 429 - Too Many Requests).
+                
+                - Otherwise, the request is allowed.
+        
+        Advantages:
+    
+            (a) Scalability: 
+                
+                - Handles high traffic volumes by adding more nodes to the rate limiting system.
+
+            (b) Centralized Store:
+
+                - A centralized place for managing the rate limiting request. 
+    
+        Disadvantages:
+    
+            (a) Latency: 
+            
+                - Each rate-limiting check involves a network call to the datastore, adding latency.
+    
+            (b) Datastore Dependency: 
+            
+                - The centralized store can become a single point of failure if not managed properly.
+    
+            (c) Complexity: 
+            
+                - Requires robust mechanisms for synchronization and consistency.
+            
+________________________________________________________________________________________________________________________
+
