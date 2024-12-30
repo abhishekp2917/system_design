@@ -230,3 +230,43 @@ ________________________________________________________________________________
             
 ________________________________________________________________________________________________________________________
 
+*   When to apply rate limiting and what not to ?
+
+>>  When to Apply Rate Limiting:
+
+        (1) High-Traffic or Resource-Intensive APIs:
+
+            - APIs that perform computationally expensive operations or access rate-sensitive resources (e.g., database queries, 
+              file processing) should be limited to protect system performance.
+
+        (2) APIs with Business Constraints:
+
+            - APIs tied to subscription plans or licensing agreements often have usage quotas (e.g., free vs. premium plans) 
+              should be rate limited.
+        
+        (3) APIs Prone to Abuse:
+
+            - APIs that are susceptible to misuse, such as login endpoints (to prevent brute-force attacks) or search endpoints 
+              (to avoid scraping), should be rate-limited.
+
+    When Not to Apply Rate Limiting:
+
+        (1) Internal APIs:
+
+            - APIs used exclusively for internal communication between microservices or system components generally do 
+              not require rate limiting unless there is a risk of cascading failures.
+        
+        (2) Idempotent or Read-Heavy APIs:
+
+            - Lightweight, read-only APIs that do not stress resources significantly might not need rate limiting.
+
+        (3) Critical System Operations:
+
+            - APIs critical for system health (e.g., heartbeat checks, health probes) should not be rate-limited as 
+              they can disrupt system monitoring or failover mechanisms.
+
+        (4) Low-Traffic APIs:
+
+            - APIs with predictable, low traffic may not need rate limiting unless they have other vulnerabilities.
+
+________________________________________________________________________________________________________________________
