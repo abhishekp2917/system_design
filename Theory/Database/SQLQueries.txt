@@ -1,0 +1,321 @@
+*   Write a query to create a database named EmployeeDB.
+
+>>  ```
+        CREATE DATABASE EmployeeDB;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to delete a database named EmployeeDB.
+
+>>  ```
+        DROP DATABASE EmployeeDB;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to create a table Employee with the following columns: id (integer, primary key), first_name (varchar), 
+    last_name (varchar), salary (decimal) and department (integer, foreign key).
+
+>>  ```
+        CREATE TABLE Employee (
+            id INT PRIMARY KEY,
+            first_name VARCHAR(255),
+            last_name VARCHAR(255),
+            salary DECIMAL(10, 2),
+            department INT,
+            FOREIGN KEY (department) REFERENCES Department(id)
+        );
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to alter table Employee to change the column name 'salary' to 'compensation' and add new column named 
+    'age'.
+
+>>  ```
+        ALTER TABLE Employee
+        CHANGE COLUMN salary compensation DECIMAL(10, 2),
+        ADD COLUMN age INT;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to alter table Employee to drop the column nameed 'compensation'.
+
+>>  ```
+        ALTER TABLE Employee
+        DROP COLUMN compensation;
+    ```
+________________________________________________________________________________________________________________________
+
+*   Write a query to create same table Employee having 'first_name' and 'last_name' as composite primary key.
+
+>>  ```
+        CREATE TABLE Employee (
+            first_name VARCHAR(255),
+            last_name VARCHAR(255),
+            salary DECIMAL(10, 2),
+            department INT,
+            PRIMARY KEY (first_name, last_name),
+            FOREIGN KEY (department) REFERENCES Department(id)
+        );
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to truncate table Employee.
+
+>>  ```
+        TRUNCATE TABLE Employee;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to drop table Employee.
+
+>>  ```
+        DROP TABLE Employee;
+    ```
+________________________________________________________________________________________________________________________
+
+*   Write a query to insert 3 records into the Employee table.
+
+>>  ```
+        INSERT INTO Employee (first_name, last_name, salary, department)
+        VALUES 
+        ('John', 'Doe', 50000.00, 1),
+        ('Jane', 'Smith', 60000.00, 2),
+        ('Alice', 'Johnson', 55000.00, 1);
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to select all columns from the Employee table.
+
+>>  ```
+        SELECT * FROM Employee;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to select distinct department from the Employee table.
+
+>>  ``` 
+        SELECT DISTINCT department FROM Employee;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to select employee whose salary > 50000 and department is 10 from the Employee table.
+
+>>  ```
+        SELECT * FROM Employee 
+        WHERE salary>50000 AND department=10;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to select employee whose first_name starts with 'A' from the Employee table.
+
+>>  ```
+        SELECT * FROM Employee 
+        WHERE first_name LIKE 'A%';
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to select employee whose salary is between 30000 and 60000 inclusive from the Employee table.
+
+>>  ```
+        SELECT * FROM Employee 
+        WHERE salary BETWEEN 30000 AND 60000;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to select employee whose department is either 10, 20 or 30 from the Employee table.
+
+>>  ```
+        SELECT * FROM Employee 
+        WHERE dept_id IN (10, 20, 30);
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to select employee whose department is null from the Employee table.
+
+>>  ```
+        SELECT * FROM Employee 
+        WHERE department IS NULL;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to Select employees ordered by department and descending salary from the Employee table.
+
+>>  ```
+        SELECT * FROM Employee 
+        ORDER BY department, salary DESC;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to get total salary paid per department from the Employee table.
+
+>>  ```
+        SELECT department, SUM(salary) FROM Employee 
+        GROUP BY department;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to get departments with average salary above 40000 from the Employee table.
+
+>>  ```
+        SELECT department, AVG(salary) AS 'Average Salary' FROM Employee 
+        GROUP BY department 
+        HAVING AVG(salary) > 40000;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to select top 5 highest-paid employees from the Employee table.
+
+>>  ```
+        SELECT * FROM Employee ORDER BY salary DESC LIMIT 5;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to select 6th to 10th highest-paid employees from the Employee table.
+
+>>  ```
+        SELECT * FROM Employee ORDER BY salary DESC LIMIT 5 OFFSET 5;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to Inner join Employee and Department to get department name.
+
+>>  ```
+        SELECT e.first_name, d.dept_name FROM Employee e 
+        INNER JOIN Department d ON e.dept_id = d.dept_id;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to Left join to get all employees even if department is null.
+
+>>  ```
+        SELECT e.first_name, d.dept_name FROM Employee e 
+        LEFT JOIN Department d ON e.dept_id = d.dept_id;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to Right join to get all departments even if no employees.
+
+>>  ```
+        SELECT e.first_name, d.dept_name FROM Employee e 
+        RIGHT JOIN Department d ON e.dept_id = d.dept_id;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to Full outer join to get all employees and all departments.
+
+>>  ```
+        SELECT e.first_name, d.dept_name FROM Employee e 
+        LEFT JOIN Department d ON e.dept_id = d.dept_id
+        UNION
+        SELECT e.first_name, d.dept_name FROM Employee e 
+        RIGHT JOIN Department d ON e.dept_id = d.dept_id;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to get employees with salary greater than average salary from the Employee table.
+
+>>  ```
+        SELECT * FROM Employee 
+        WHERE salary > (SELECT AVG(salary) FROM Employee);
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to add a column showing salary grade in SELECT query.
+
+>>  ```
+        SELECT first_name, salary,
+        CASE
+            WHEN salary >= 80000 THEN 'A'
+            WHEN salary >= 50000 THEN 'B'
+            ELSE 'C'
+        END AS grade
+        FROM Employee;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to select employees who work in atleast one department that exist in the Department table.
+
+>>  ```
+        SELECT * FROM Employee 
+        WHERE EXISTS (
+            SELECT 1 FROM Department d WHERE d.dept_id = Employee.department
+        );
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to insert entire record from Employee table to EmployeeArchive table whose salary > 80000.
+
+>>  ```
+        INSERT INTO EmployeeArchive (id, first_name, last_name, salary, department)
+        SELECT id, first_name, last_name, salary, department FROM Employee WHERE salary > 80000;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to set department to NULL for employees whose salary < 40000.
+
+>>  ```
+        UPDATE Employee 
+        SET department = NULL 
+        WHERE salary < 40000;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to delete all the employees whose department is NULL.
+
+>>  ```
+        DELETE FROM Employee 
+        WHERE department IS NULL;
+    ```
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to demonstrate the Transaction Control Language.
+
+>>  ```
+        START TRANSACTION;
+
+        INSERT INTO Employee (id, first_name, last_name, salary, department)
+        VALUES 
+        (201, 'Rahul', 'Singh', 50000, 1);
+        (202, 'Priya', 'Shukla', 45000, 2);
+
+        SAVEPOINT after_insert;
+
+        UPDATE Employee SET salary = 100000 WHERE id = 202;
+
+        ROLLBACK TO after_insert;
+
+        UPDATE Employee SET salary = 48000 WHERE id = 202;
+
+        COMMIT;
+    ```
+
+________________________________________________________________________________________________________________________

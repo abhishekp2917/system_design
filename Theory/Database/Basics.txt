@@ -78,61 +78,350 @@
 
 ________________________________________________________________________________________________________________________
 
-*   What are various technologies that provide support for load balancing database replicas ?
+*   What are the differences between Clustered Index and Non-Clustered Index ?
 
->>  Here is a list of technologies that provide support for load balancing database replicas:
-
-    (1) Database Proxy Solutions
-    
-        (a) ProxySQL:
-
-            Description: A high-performance, open-source proxy for MySQL and MariaDB.
-            
-            Features: Read/write splitting, query routing, load balancing across replicas, failover support, and query caching.
-            
-            Use Case: Ideal for MySQL and MariaDB users needing dynamic query routing and high availability.
+>>  (1) Clustered Index:
         
-        (b) HAProxy:
+        - The data is stored in the B+ tree itself, and the rows are ordered physically on disk according to the 
+          clustered index.
 
-            Description: A reliable, open-source load balancer that supports HTTP, TCP, and database traffic.
-            
-            Features: Configurable for load balancing read and write operations, health checks, and failover.
-            
-            Use Case: Can be used for balancing traffic across multiple database replicas and nodes.
+        - The leaf nodes of the B+ tree contain the actual data rows.
 
-        (c) Nginx:
+        - No extra lookup is needed because the B+ tree contains the actual data in the leaf nodes.
 
-            Description: A web server that also acts as a reverse proxy and load balancer.
-            
-            Features: Can be configured for database load balancing and distributing connections across replicas.
-            
-            Use Case: Suitable for applications that need load balancing for lightweight database requests.
+        - There can be only one clustered index per table as you can physically store data in only one order.
 
-    (2) Database-Specific Load Balancing Solutions
+    (2) Non-Clustered Index:
 
-        (a) Vitess:
+        - The DB creates a seperate virtual B+ tree for each non-clustered column.
 
-            Description: An open-source sharding middleware for scaling MySQL.
-            
-            Features: Transparent sharding, read/write splitting, load balancing across replicas, and query aggregation.
-            
-            Use Case: Used in large-scale MySQL deployments for horizontal scalability and load management.
+        - The leaf nodes of this B+ tree contain pointers to the actual data rows in the table.
 
-        (b) MongoDB (mongos):
-
-            Description: A query router component used in MongoDB sharded clusters.
-            
-            Features: Routes read and write queries to appropriate shards and supports load distribution among replicas.
-            
-            Use Case: Best for MongoDB clusters that need to balance read queries across secondary nodes.
-        
-        (c) Citus:
-
-            Description: An extension for PostgreSQL that enables distributed database capabilities.
-            
-            Features: Load balancing across worker nodes, parallel query execution, and data redistribution.
-            
-            Use Case: For PostgreSQL users looking for distributed and horizontally scalable database solutions.
+        - The database has to follow the pointer from the non-clustered index to the actual row in the table which makes 
+          Non-Clustered Index slower than Clustered Index.
 
 ________________________________________________________________________________________________________________________
 
+*   What is Database Normalization and Denormalization ?
+
+>>  (1) Database Normalization:
+
+        - Normalization is the process of organizing the data within a database to reduce redundancy and dependency. 
+        
+        - This is achieved by dividing large tables into smaller, related tables.
+
+        (a) First Normal Form:
+
+            - Every column should have only one value, and each row should be unique.
+
+        (b) Second Normal Form:
+
+            - If the primary key is a combination of columns (composite key), each non-key column must depend on all 
+              parts of that composite key, not just subset of the it.
+
+        (c) Third Normal Form:
+
+            - A non-key column should not depend on another non-key column. Every non-key attribute must depend only 
+              on the primary key.
+
+    (2) Database Denormalization:
+
+        - Denormalization is the opposite of normalization, where we intentionally introduce redundancy into the database 
+          to improve read performance. 
+          
+        - It ensures faster read performance, especially in systems with complex queries and frequent joins.
+
+        - It causes increased storage requirements due to redundant data.
+
+________________________________________________________________________________________________________________________
+
+*   What are various types of SQL language ?
+
+>>  (1) Data Definition Language (DDL):
+
+        - It deals with the structure (schema) of the database.
+
+        (a) CREATE: Defines a new database, table, or view.
+
+        (b) ALTER: Modifies an existing database object (e.g., adding a column).
+
+        (c) DROP: Deletes an existing database, table, or view.
+
+        (d) TRUNCATE: Removes all rows from a table, but does not remove the table structure.
+
+    (2) Data Manipulation Language (DML):
+
+        - It deals with the modification of data within the database.
+
+            (a) INSERT: Adds new data (rows) to a table.
+
+            (b) UPDATE: Modifies existing data in a table.
+
+            (c) DELETE: Removes data from a table.
+
+    (3) Data Control Language (DCL):
+
+        - It deals with the permissions and access control to the data.
+
+        (a) GRANT: Gives privileges to a user or role (e.g., allowing access to a table).
+
+        (b) REVOKE: Removes privileges or access rights from a user or role.
+
+    (4) Transaction Control Language (TCL):
+
+        - It deals with managing transactions in the database (ensures data integrity).
+
+        (a) COMMIT: Saves all changes made in the current transaction to the database.
+
+        (b) ROLLBACK: Rolls back the current transaction to the previous consistent state.
+
+        (c) SAVEPOINT: Sets a point in a transaction to which you can later roll back.
+
+    (5) Data Query Language (DQL):
+
+        - It deals with querying the data from the database.
+
+        (a) SELECT: Retrieves data from one or more tables based on specified criteria.
+
+________________________________________________________________________________________________________________________
+
+*   What are various types of Joins in SQL ? How do they work ?
+
+>>  (1) INNER JOIN:
+
+        - Returns only matching rows from both tables.
+
+        - If a row in Table A matches a row in Table B based on the join condition, it's included.
+
+        Example:
+
+            ```
+                SELECT *
+                FROM TableA A
+                INNER JOIN TableB B ON A.id = B.a_id;
+            ```
+
+    (2) LEFT JOIN (LEFT OUTER JOIN):
+
+        - Returns all rows from the left table, and matching rows from the right table. Fills with NULL if no match.
+
+        - All records from Table A appear; if no match in Table B, you still get the row with nulls.
+
+        Example:
+
+            ```    
+                SELECT *
+                FROM TableA A
+                LEFT JOIN TableB B ON A.id = B.a_id;
+            ```
+
+    (3) RIGHT JOIN (RIGHT OUTER JOIN):
+
+        - Returns all rows from the right table, and matching rows from the left table.
+
+        Example:
+
+            ```        
+                SELECT *
+                FROM TableA A
+                RIGHT JOIN TableB B ON A.id = B.a_id;
+            ```
+
+    (4) FULL OUTER JOIN:
+
+        - Returns all rows from both tables — matched or unmatched.
+
+        - Matched rows are combined; unmatched rows from either side are padded with NULL.
+
+        Example:
+
+            ```
+                SELECT *
+                FROM TableA A
+                FULL OUTER JOIN TableB B ON A.id = B.a_id;
+            ```
+        - It is not supported directly in MySQL. Use UNION of LEFT and RIGHT JOINs to emulate:
+
+            ```
+                SELECT * 
+                FROM TableA A 
+                LEFT JOIN TableB B ON A.id = B.a_id
+                UNION
+                SELECT * 
+                FROM TableA A 
+                RIGHT JOIN TableB B ON A.id = B.a_id;
+            ```
+
+    (5) CROSS JOIN (Cartesian Join):
+
+        - Returns the Cartesian product of both tables — every row in A joins with every row in B.
+
+            ```
+                SELECT * FROM TableA A CROSS JOIN TableB B;
+            ```
+
+    (6) SELF JOIN:
+
+        - Joins a table to itself.
+
+        - Treats the same table as two separate entities via aliases.
+
+        Example:
+
+            ```
+                SELECT A.name AS Employee, B.name AS Manager
+                FROM Employee A
+                LEFT JOIN Employee B ON A.manager_id = B.emp_id;
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   Is it mandatory to use aggregate function in SELECT query when using GROUP BY clause ?
+
+>>  Yes, it is required to use aggregate functions in a SELECT query when you are using a GROUP BY clause.
+
+    Example:
+
+        - This would throw an error because first_name is neither grouped nor aggregated.
+
+        ```
+            SELECT department, first_name FROM Employee
+            GROUP BY department;
+        ```
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of HAVING clause ?
+
+>>  The HAVING clause is used to filter results after the GROUP BY clause has been applied. 
+
+    It allows you to set conditions on aggregated data (i.e., the results of SUM(), COUNT() etc.) that cannot be directly 
+    filtered by the WHERE clause.
+
+    Key Differences between HAVING and WHERE:
+    
+        (1) WHERE: 
+        
+            - Filters rows before the grouping takes place. 
+            
+            - It works on individual rows.
+
+        (2) HAVING: 
+        
+            - Filters rows after the grouping has been performed. 
+            
+            - It works on the result of aggregate functions.
+
+________________________________________________________________________________________________________________________
+
+*   What is the use of UNION ?
+
+>>  The UNION operator in SQL is used to combine the results of two or more SELECT queries into a single result set.
+
+    It adds the result of second query below the first (vertically).
+
+    By default, it removes duplicate rows from the final result.
+
+    All SELECT queries must have same number of columns and compatible data types.
+
+    Example:
+        
+        - Suppose you have two tables: Students2023 and Students2024, each with a list of student names.
+        
+        - This returns a unique list of names from both tables (no duplicates).
+
+            ```
+                SELECT name FROM Students2023
+                UNION
+                SELECT name FROM Students2024;
+            ```
+
+        - To Include Duplicates, use UNION ALL
+
+            ```
+                SELECT name FROM Students2023
+                UNION ALL
+                SELECT name FROM Students2024;
+            ```
+
+________________________________________________________________________________________________________________________
+
+*   What are various Database Optimization techniques ?
+
+>>  (1) Indexing:
+
+        - Use indexes on frequently searched columns.
+
+        - Avoid too many indexes as it degrades write performance.
+
+    (2) Caching:
+
+        - Use query result caching using Redis/Memcached for frequently accessed data.
+
+        - Cache entities at the app level using EhCache or Redis.
+
+    (3) Partitioning and Sharding:
+
+        - Partitioning: Split large tables into smaller, manageable parts.
+
+        - Sharding: Distribute data across multiple servers for horizontal scaling.
+
+    (4) Connection Management:
+
+        - Use Connection Pooling to reduce overhead of creating new connections.
+
+    (5) Query Optimization:
+
+        - Use SELECT only required columns – Avoid SELECT *.
+
+        - Use WHERE clauses wisely – Filter early, reduce result set size.
+
+        - Avoid unnecessary joins and subqueries – Flatten logic when possible.
+
+    (6) Database Design:
+        
+        - Normalization: Eliminate redundancy, ensure data integrity.
+
+        - Denormalization (when needed): Improve read performance for reporting.
+
+________________________________________________________________________________________________________________________
+
+*   What are Stored Procedures ?
+
+>>  A Stored Procedure is a precompiled collection of SQL statements stored in the database, which can be executed as a 
+    single unit to perform repetitive tasks.
+    
+    It improve performance, and enhance security by encapsulating business logic on the database side.
+
+________________________________________________________________________________________________________________________
+
+*   What are Views in RDMS ?
+
+>>  View is a saved SQL query that can be reused multiple times to only view data.
+
+    It is a virtual table that does not store data but presents data from one or more tables.
+
+    Views can be used to restrict access to sensitive data by showing only certain columns or rows.
+
+________________________________________________________________________________________________________________________
+
+*   What are the differences between Stored Procedure, Views and Functions ?
+
+>>  (1) Stored Procedure:
+
+        - Used to store a set of complex SQL statements in the database.
+
+        - These procedures can be executed multiple times and can perform all type of DB operations.
+
+    (2) View:
+
+        - A virtual table created by a SELECT query which is used to simplify complex queries and hide unnecessary 
+          details from the user.
+
+        - Unlike stored procedures, views are only used for viewing data and cannot directly modify it.
+
+    (3) Function:
+
+        - Similar to stored procedures, but always returns a single value, often used to perform calculations.
+
+________________________________________________________________________________________________________________________
