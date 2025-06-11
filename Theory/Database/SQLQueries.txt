@@ -319,3 +319,33 @@ ________________________________________________________________________________
     ```
 
 ________________________________________________________________________________________________________________________
+
+*   Write a query to create indexing on department column of Employee table.
+
+>>  ```      
+        -- CREATE INDEX index_name ON table_name (column_name);
+
+        CREATE INDEX emp_dep_idx ON Employee (department);
+
+    ```
+
+    In MySQL, whether an index is clustered or non-clustered depends on the storage engine used—not the CREATE INDEX 
+    syntax itself.
+
+    InnoDB (default engine)
+        
+        - Primary Key : Automatically creates a clustered index.
+
+        - Other indexes (including UNIQUE) : Are non-clustered (but point to the clustered primary key).
+
+________________________________________________________________________________________________________________________
+
+*   Write a query to create indexing on multiple columns of Employee table.
+
+>>  ```
+        CREATE INDEX idx_multi ON Employee (first_name, last_name, department);
+    ```
+
+    - Only useful if WHERE clause uses only first_name or first_name + last_name + department in order.
+
+________________________________________________________________________________________________________________________
